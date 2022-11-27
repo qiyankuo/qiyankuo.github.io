@@ -4,7 +4,7 @@
   
     
     <entry>
-      <title>Linux磁盘管理</title>
+      <title>Linux文件系统</title>
       <link href="/2022/11/27/Linux-file/"/>
       <url>/2022/11/27/Linux-file/</url>
       
@@ -20,7 +20,7 @@
       
         <tags>
             
-            <tag> Linux 文件系统 </tag>
+            <tag> LVM RAID XFS </tag>
             
         </tags>
       
