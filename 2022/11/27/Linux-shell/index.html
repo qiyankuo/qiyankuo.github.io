@@ -1,0 +1,1074 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>Shell编程 | 知与行</title><meta name="author" content="QiYan"><meta name="copyright" content="QiYan"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="编程语言分类 编程语言可以分为机器语言、汇编语言、高级语言三种，其中高级语言还可以分为静态语言和动态语言。静态语言也称为编译型语言，即事先通过编译器转换成可执行格式，该语言变量一般是强类型。动态语言则称为解释性语言，即执行时通过解释器边解释边执行，该语言变量一般是弱类型。SHELL则是动态语言的一种，同时它也是一门面向过程的语言。  变量变量是一段命名的内存空间，我们可以通过变量去操纵变量所对应的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Shell编程">
+<meta property="og:url" content="http://example.com/2022/11/27/Linux-shell/index.html">
+<meta property="og:site_name" content="知与行">
+<meta property="og:description" content="编程语言分类 编程语言可以分为机器语言、汇编语言、高级语言三种，其中高级语言还可以分为静态语言和动态语言。静态语言也称为编译型语言，即事先通过编译器转换成可执行格式，该语言变量一般是强类型。动态语言则称为解释性语言，即执行时通过解释器边解释边执行，该语言变量一般是弱类型。SHELL则是动态语言的一种，同时它也是一门面向过程的语言。  变量变量是一段命名的内存空间，我们可以通过变量去操纵变量所对应的">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-11-27T14:05:00.135Z">
+<meta property="article:modified_time" content="2022-11-27T14:05:00.133Z">
+<meta property="article:author" content="QiYan">
+<meta property="article:tag" content="shell">
+<meta name="twitter:card" content="summary"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2022/11/27/Linux-shell/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Shell编程',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-11-27 22:05:00'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/font.css"><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="知与行" type="application/atom+xml">
+</head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/avatar.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">12</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">16</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">知与行</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Shell编程</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-11-27T14:05:00.135Z" title="发表于 2022-11-27 22:05:00">2022-11-27</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-11-27T14:05:00.133Z" title="更新于 2022-11-27 22:05:00">2022-11-27</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Linux/">Linux</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">7k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>27分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Shell编程"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="编程语言分类"><a href="#编程语言分类" class="headerlink" title="编程语言分类"></a>编程语言分类</h2><blockquote>
+<p>编程语言可以分为机器语言、汇编语言、高级语言三种，其中高级语言还可以分为静态语言和动态语言。静态语言也称为编译型语言，即事先通过编译器转换成可执行格式，该语言变量一般是强类型。动态语言则称为解释性语言，即执行时通过解释器边解释边执行，该语言变量一般是弱类型。SHELL则是动态语言的一种，同时它也是一门面向过程的语言。</p>
+</blockquote>
+<h2 id="变量"><a href="#变量" class="headerlink" title="变量"></a>变量</h2><p>变量是一段命名的内存空间，我们可以通过变量去操纵变量所对应的内存空间。变量的存储内容可以分为如下几种：</p>
+<ul>
+<li>字符</li>
+<li>数值</li>
+<li>整型</li>
+<li>浮点型: 11.23， 1.123<em>10^1, 0.1123</em>10^2  </li>
+<li>bool型（真、假）</li>
+</ul>
+<p>变量赋值：VAR_NAME&#x3D;VALUE  </p>
+<p>bash变量类型：</p>
+<pre><code>环境变量：作用域为当前shell进程及其子进程；
+    定义方式一：
+        export VARNAME=VALUE
+    定义方式二：
+        VARNAME=VALUE
+        export VARNAME
+    查看当前shell中的环境变量：
+        printenv
+        env
+        export
+
+本地变量(局部变量)：
+    本地变量：set VARNAME=VALUE: 作用域为整个bash进程；
+        撤消变量：unset VARNAME
+        查看当shell中变量：set
+    局部变量：local VARNAME=VALUE：作用域为当前代码段；
+
+位置变量：
+    $1, $2, ...：脚本的第几个参数
+    shift：脚本的参数前移。第二个参数变为第一个...
+
+    ./filetest.sh /etc/fstab /etc/inittab
+        $1: /etc/fstab
+        $2: /etc/inittab
+
+特殊变量：
+    $?: 上一个命令的执行状态返回值；
+    $#：参数的个数
+    $*: 参数列表
+    $@：参数列表
+    
+</code></pre>
+<p>引用变量：${VARNAME}, 括号有时可省略。如：$<strong>VARNAME</strong>OTHER这种变量后面直接跟其它字符的括号不能省略。</p>
+<p>变量名称：</p>
+<ul>
+<li>只能包含字母、数字和下划线，并且不能数字开头；</li>
+<li>不应该跟系统中已有的环境变量重名；</li>
+<li>最好做到见名知义；</li>
+</ul>
+<p>程序执行，可能有两类返回值：</p>
+<ul>
+<li>程序执行结果（程序输出结果）</li>
+<li>程序状态返回代码（0-255）<ul>
+<li>0: 正确执行</li>
+<li>1-255：错误执行。其中：1，2，127系统预留；</li>
+</ul>
+</li>
+</ul>
+<p>&#x2F;dev&#x2F;null: 软件设备， bit bucket，数据黑洞。在命令执行中，如果我们不想显示命令的执行结果，可以将命令输出重定向到数据黑洞。</p>
+<h2 id="脚本"><a href="#脚本" class="headerlink" title="脚本"></a>脚本</h2><p>脚本：命令的堆砌，按实际需要，结合命令流程控制机制实现的源程序</p>
+<p>脚本在执行时会启动一个子shell进程；命令行中启动的脚本会继承当前shell环境变量；系统自动执行的脚本(非命令行启动)就需要自我定义需要的各环境变量；</p>
+<p>在脚本的第一行必须添加shebang（魔数），如下</p>
+<pre><code> #!/bin/bash
+
+ # 其它行中#代表注释行，不执行
+</code></pre>
+<p>提示：</p>
+<pre><code>“引用”一个命令的执行结果，要使用命令引用；比如: RESAULTS=`wc -l /etc/passwd | cut -d: -f1`；
+使用一个命令的执行状态结果，要直接执行此命令，一定不能引用；比如: if id user1一句中的id命令就一定不能加引号；
+如果想把一个命令的执行结果赋值给某变量，要使用命令引用，比如USERID=`id -u user1`;
+如果想把一个命令的执行状态结果保存下来，并作为命令执行成功与否的判断条件，则需要先执行此命令，而后引用其状态结果，如
+    id -u user1
+    RETVAL=$?
+    此句绝对不可以写为RETVAL=`id -u user1`；
+</code></pre>
+<h2 id="逻辑运算"><a href="#逻辑运算" class="headerlink" title="逻辑运算"></a>逻辑运算</h2><p>  与：两边都为真结果为真<br>  或：只要有一个为真结果就为真<br>  非：结果取反<br>  异或：两边结果不同真  </p>
+<p>命令间的逻辑关系：</p>
+<pre><code>逻辑与： &amp;&amp;
+    第一个条件为假时，第二条件不用再判断，最终结果已经有；
+    第一个条件为真时，第二条件必须得判断；
+逻辑或： ||
+    第一个条件为直时，第二条件不用再判断，最终结果已经有；
+    第一个条件为假时，第二条件必须得判断；
+</code></pre>
+<p>如果用户user6不存在，就添加用户user6</p>
+<pre><code>! id user6 &amp;&amp; useradd user6
+id user6 || useradd user6
+</code></pre>
+<p>如果用户存在，就显示用户已存在；否则，就添加此用户；</p>
+<pre><code>id user1 &amp;&amp; echo &quot;user1 exists.&quot; || useradd user1
+</code></pre>
+<p>如果用户不存在，就添加；否则，显示其已经存在；</p>
+<pre><code>! id user1 &amp;&amp; useradd user1 || echo &quot;user1 exists.&quot;
+</code></pre>
+<p>如果用户不存在，添加并且给密码；否则，显示其已经存在；</p>
+<pre><code>! id user1 &amp;&amp; useradd user1 &amp;&amp; echo &quot;user1&quot; | passwd --stdin user1	|| echo &quot;user1 exists.&quot;
+id user7 &amp;&amp; echo &quot;user exists&quot; || useradd user7 || echo &quot;user7&quot;|passwd --stdin user7
+</code></pre>
+<h2 id="条件判断"><a href="#条件判断" class="headerlink" title="条件判断"></a>条件判断</h2><pre><code>如果用户不存在
+    添加用户，给密码并显示添加成功；
+否则
+    显示如果已经没在，没有添加；
+</code></pre>
+<p>bash中的条件测试类型：  </p>
+<ul>
+<li><p>整数测试</p>
+<p>  -eq: 测试两个整数是否相等；比如 $A -eq $B<br>  -ne: 测试两个整数是否不等；不等，为真；相等，为假；<br>  -gt: 测试一个数是否大于另一个数；大于，为真；否则，为假；<br>  -lt: 测试一个数是否小于另一个数；小于，为真；否则，为假；<br>  -ge: 大于或等于<br>  -le：小于或等于</p>
+</li>
+<li><p>字符测试</p>
+<p>  &#x3D;&#x3D; ：测试是否相等，相等为真，不等为假<br>  !&#x3D; : 测试是否不等，不等为真，等为假<br>  &gt;： 测试两个字符串大小<br>  &lt;： 测试两个字符串大小<br>  -n string: 测试指定字符串是否为空，空则真，不空则假<br>  -z string: 测试指定字符串是否不空，不空为真，空则为假</p>
+</li>
+<li><p>文件测试</p>
+<p>  -e FILE: 测试文件是否存在<br>  -f FILE: 测试文件是否为普通文件<br>  -d FILE: 测试指定路径是否为目录<br>  -r FILE: 测试当前用户对指定文件是否有读取权限；<br>  -w FILE: 测试当前用户对指定文件是否有写入权限；<br>  -x FILE: 测试当前用户对指定文件是否有执行权限；</p>
+</li>
+</ul>
+<p>条件测试的表达式：  </p>
+<pre><code>[ expression ]  
+[[ expression ]]  
+test expression
+注：&#39;[&#39;和&#39;]&#39; 内部要有一个空格，否则报错。
+
+INT1=63
+INT2=77
+[ $INT1 -eq $INI2 ]
+[[ $INT1 -eq $INT2 ]]
+test $INT1 -eq $INT2   
+[ -e /etc/inittab ]
+[ -x /etc/rc.d/rc.sysinit ]	 
+</code></pre>
+<p>如果&#x2F;etc&#x2F;inittab文件的行数大于100，就显示好大的文件；</p>
+<pre><code>[ `wc -l /etc/inittab | cut -d&#39; &#39; -f1` -gt 100 ] &amp;&amp; echo &quot;Large file.&quot;
+</code></pre>
+<blockquote>
+<p>注：Linux的Shell中0为真，其它整数为假。  </p>
+</blockquote>
+<p>条件判断，控制结构：</p>
+<pre><code>单分支if语句
+if 判断条件; then
+  statement1
+  statement2
+  ...
+fi
+
+双分支的if语句：
+if 判断条件; then
+    statement1
+    statement2
+    ...
+else
+    statement3
+    statement4
+    ...
+fi
+
+多分支的if语句：
+if 判断条件1; then
+  statement1
+  ...
+elif 判断条件2; then
+  statement2
+  ...
+elif 判断条件3; then
+  statement3
+  ...
+else
+  statement4
+  ...
+fi
+
+
+case语句：选择结构
+
+case SWITCH in 
+value1)
+  statement
+  ...
+  ;;
+value2)
+  statement
+  ...
+  ;;
+*)
+  statement
+  ...
+  ;;
+esac
+
+a-z
+A-Z
+0-9
+[abc]
+</code></pre>
+<p>shell处理参数：</p>
+<pre><code>#!/bin/bash
+#
+DEBUG=0
+ADD=0
+DEL=0
+
+for I in `seq 0 $#`; do
+  if [ $# -gt 0 ]; then
+      case $1 in
+      -v|--verbose)
+        DEBUG=1
+        shift ;;
+      -h|--help)
+        echo &quot;Usage: `basename $0` --add USER_LIST --del USER_LIST -v|--verbose -h|--help&quot;
+        exit 0
+        ;;
+      --add)
+        ADD=1
+        ADDUSERS=$2
+        shift 2
+        ;;
+      --del)
+        DEL=1
+        DELUSERS=$2
+        shift 2
+        ;;
+      *)
+        echo &quot;Usage: `basename $0` --add USER_LIST --del USER_LIST -v|--verbose -h|--help&quot;
+        exit 7
+        ;;
+    esac
+  fi
+done
+
+if [ $ADD -eq 1 ]; then
+  for USER in `echo $ADDUSERS | sed &#39;s@,@ @g&#39;`; do
+    if id $USER &amp;&gt; /dev/null; then
+      [ $DEBUG -eq 1 ] &amp;&amp; echo &quot;$USER exists.&quot;
+    else
+      useradd $USER
+      [ $DEBUG -eq 1 ] &amp;&amp; echo &quot;Add user $USER finished.&quot;
+    fi
+  done
+fi
+
+if [ $DEL -eq 1 ]; then
+  for USER in `echo $DELUSERS | sed &#39;s@,@ @g&#39;`; do
+    if id $USER &amp;&gt; /dev/null; then
+      userdel -r $USER
+      [ $DEBUG -eq 1 ] &amp;&amp; echo &quot;Delete $USER finished.&quot;
+    else
+      [ $DEBUG -eq 1 ] &amp;&amp; echo &quot;$USER not exist.&quot;
+    fi
+  done
+fi
+</code></pre>
+<p>组合测试条件</p>
+<pre><code>-a: 与关系
+-o: 或关系
+!： 非关系
+
+if [ $# -gt 1 -a $# -le 3 ]
+if [ $# -gt 1 ] &amp;&amp; [ $# -le 3 ]
+
+注：取反要注意,比如！（A -a B） = ！A -o ！B
+</code></pre>
+<h2 id="算术运算"><a href="#算术运算" class="headerlink" title="算术运算"></a>算术运算</h2><pre><code>A=3
+B=6
+1、let 算术运算表达式
+    let C=$A+$B
+2、$[算术运算表达式]
+    C=$[$A+$B]
+3、$((算术运算表达式))
+    C=$(($A+$B))
+4、expr 算术运算表达式，表达式中各操作数及运算符之间要有空格，而且要使用命令引用
+    C=`expr $A + $B`
+</code></pre>
+<h2 id="退出状态码"><a href="#退出状态码" class="headerlink" title="退出状态码"></a>退出状态码</h2><pre><code>exit: 退出脚本
+exit #
+如果脚本没有明确定义退出状态码，那么，最后执行的一条命令的退出码即为脚本的退出状态码；
+</code></pre>
+<h2 id="检查语法错误"><a href="#检查语法错误" class="headerlink" title="检查语法错误"></a>检查语法错误</h2><pre><code>bash -n 脚本：检查脚本，结果只供参考
+
+bash -x 脚本：单步执行
+</code></pre>
+<h2 id="循环"><a href="#循环" class="headerlink" title="循环"></a>循环</h2><p>shell循环有三种语法结构： </p>
+<ul>
+<li><p>for</p>
+<pre><code>  for 变量 in 列表; do
+    循环体
+  done
+
+  for I in 1 2 3 4 5 6 7 8 9 10; do
+    加法运算
+  done
+
+  如何生成列表：
+      &#123;1..100&#125;
+      `seq [起始数 [步进长度]] 结束数`
+
+  for (( expr1 ; expr2 ; expr3 )); do 
+    循环体
+  done
+</code></pre>
+</li>
+<li><p>while</p>
+<pre><code>  进入循环：条件满足
+  退出循环：条件不满足
+
+  while CONDITION; do
+    statment
+  done
+</code></pre>
+</li>
+<li><p>until</p>
+<pre><code>  进入循环：条件不满足
+  退出循环：条件满足
+
+  until CONDITION; do
+    statement
+    ...
+  done
+</code></pre>
+</li>
+</ul>
+<p>循环体内中断循环语句：</p>
+<pre><code>break: 提前退出循环  
+continue：提前结束本轮循环，而进入下一轮循环；
+</code></pre>
+<p>while特殊用法：</p>
+<pre><code>while的特殊用法一（死循环）：
+while :;do
+  
+done
+
+while的特殊用法二（读取/PATH/TO/SOMEFILE，将每一行内容赋值给LINE变量）：
+while read LINE; do
+
+done &lt; /PATH/TO/SOMEFILE
+</code></pre>
+<h2 id="declare命令"><a href="#declare命令" class="headerlink" title="declare命令"></a>declare命令</h2><pre><code>declare -i SUM=0
+declare [+/-][选项] 变量名
+    - ：给变量赋予类型属性
+    + ：取消变量的类型属性
+    -a：将变量声明为数组型
+    -i：将变量声明为整型
+    -x：将变量声明为环境变量
+    -r：将变量声明为只读变量
+    -p：查看变量的被声明的类型
+</code></pre>
+<h2 id="shell选项"><a href="#shell选项" class="headerlink" title="shell选项"></a>shell选项</h2><p>写一个脚本，显示当前系统上shell为-s指定类型的用户，并统计其用户总数。-s选项后面跟的参数必须是&#x2F;etc&#x2F;shells文件中存在的shell类型，否则不执行此脚本。另外，此脚本还可以接受–help选项，以显示帮助信息。</p>
+<pre><code>脚本执行形如：
+./showshells.sh -s bash
+显示结果形如：
+BASH，3users，they are:
+root,redhat,gentoo
+
+
+#!/bin/bash
+#
+if [ $1 == &#39;-s&#39; ]; then
+  ! grep &quot;$&#123;2&#125;$&quot; /etc/shells &amp;&gt; /dev/null &amp;&amp; echo &quot;Invalid shell.&quot; &amp;&amp; exit 7
+elif [ $1 == &#39;--help&#39; ];then
+  echo &quot;Usage: showshells.sh -s SHELL | --help&quot;
+  exit 0
+else
+  echo &quot;Unknown Options.&quot;
+  exit 8
+fi
+
+NUMOFUSER=`grep &quot;$&#123;2&#125;$&quot; /etc/passwd | wc -l`
+SHELLUSERS=`grep &quot;$&#123;2&#125;$&quot; /etc/passwd | cut -d: -f1`
+SHELLUSERS=`echo $SHELLUSERS | sed &#39;s@[[:space:]]@,@g&#39;`
+
+echo -e &quot;$2, $NUMOFUSER users, they are: \n$SHELLUSERS&quot;
+</code></pre>
+<h2 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h2><p>函数定义：</p>
+<pre><code>function FUNCNAME &#123;
+  command
+&#125;
+
+FUNCNAME() &#123;
+  command
+&#125;
+</code></pre>
+<p>自定义执行状态返回值：</p>
+<pre><code>return #
+0-255
+</code></pre>
+<p>函数的参数:</p>
+<pre><code>在脚本中传递参数方式：
+./a.sh m n 
+$1: m
+$2: n
+
+在函数中传递参数方式和上面类似：
+funcion_name 5 6
+$1: 5
+$2: 6
+</code></pre>
+<h2 id="其它"><a href="#其它" class="headerlink" title="其它"></a>其它</h2><p>1、变量中字符的长度：</p>
+<pre><code>$&#123;\#VARNAME&#125;
+</code></pre>
+<p>2、变量赋值等：</p>
+<pre><code>$&#123;parameter:-word&#125;：如果parameter为空或未定义，则变量展开为“word”；否则，展开为parameter的值；
+$&#123;parameter:+word&#125;：如果parameter为空或未定义，不做任何操作；否则，则展开为“word”值；
+$&#123;parameter:=word&#125;：如果parameter为空或未定义，则变量展开为“word”，并将展开后的值赋值给parameter；
+$&#123;parameter:offset&#125;：取子串，从offset处的后一个字符开始
+$&#123;parameter:offset:length&#125;：取子串，从offset处的后一个字符开始，取lenth长的子串；  
+</code></pre>
+<p>4、局部变量</p>
+<pre><code>定义：local VAR_NAME=
+
+a=1
+
+test() &#123;
+  a=$[3+4]
+&#125;
+
+test
+for I in `seq $a 10`; do
+  echo $I
+done  
+</code></pre>
+<p>5、命令mktemp</p>
+<pre><code>创建临时文件或目录
+
+mktemp /tmp/file.XX
+    -d: 创建为目录
+</code></pre>
+<p>6、信号</p>
+<pre><code>kill -SIGNAL PID
+    1: HUP
+    2: INT
+    9: KILL
+    15: TERM
+    
+脚本中，能实现信号捕捉，但9和15无法捕捉
+
+Ctrl+c: SIGINT
+
+trap命令：在脚本中捕获相应信号，执行信号对应的命令
+    trap &#39;COMMAND&#39; 信号列表
+注：信号0是Exit信号，这是Bash脚本特有信号，不管什么情况，只要退出脚本就会执行。
+</code></pre>
+<h2 id="练习"><a href="#练习" class="headerlink" title="练习"></a>练习</h2><p>写一个脚本，完成以下任务<br>1、添加5个用户, user1,…, user5<br>2、每个用户的密码同用户名，而且要求，添加密码完成后不显示passwd命令的执行结果信息；<br>3、每个用户添加完成后，都要显示用户某某已经成功添加；  </p>
+<pre><code>useradd user1
+echo &quot;user1&quot; | passwd --stdin user1 &amp;&gt; /dev/null
+echo &quot;Add user1 successfully.&quot;
+</code></pre>
+<p>写一个脚本，完成以下要求：<br>1、添加3个用户user1, user2, user3；但要先判断用户是否存在，不存在而后再添加；<br>2、添加完成后，显示一共添加了几个用户；当然，不能包括因为事先存在而没有添加的；<br>3、最后显示当前系统上共有多少个用户；</p>
+<p>写一个脚本，完成以下要求：<br>给定一个用户：<br>1、如果其UID为0，就显示此为管理员；<br>2、否则，就显示其为普通用户；  </p>
+<pre><code>NAME=user16
+USERID=`id -u $NAME`
+if [ $USERID -eq 0 ]; then
+  echo &quot;Admin&quot;
+else
+  echo &quot;common user.&quot;
+fi
+
+
+
+NAME=user16
+if [ `id -u $NAME` -eq 0 ]; then
+  echo &quot;Admin&quot;
+else
+  echo &quot;common user.&quot;
+fi
+</code></pre>
+<p>写一个脚本<br>判断当前系统上是否有用户的默认shell为bash；<br>   如果有，就显示有多少个这类用户；否则，就显示没有这类用户；</p>
+<pre><code>grep &quot;bash$&quot; /etc/passwd &amp;&gt; /dev/null
+RETVAL=$?
+if [ $RETVAL -eq 0 ]; then
+   ...
+
+注：grep 匹配上命令执行结果返回0，否则返回1
+</code></pre>
+<p>写一个脚本<br>判断当前系统上是否有用户的默认shell为bash；<br>   如果有，就显示其中一个的用户名；否则，就显示没有这类用户；  </p>
+<p>写一个脚本<br>给定一个文件，比如&#x2F;etc&#x2F;inittab<br>判断这个文件中是否有空白行；<br>如果有，则显示其空白行数；否则，显示没有空白行。</p>
+<pre><code>#!/bin/bash
+A=`grep &#39;^$&#39; /etc/inittab | wc -l`
+if [ $A -gt 0 ]; then
+ echo &quot;$A&quot;
+else
+ echo &quot;meiyoukongbaihang&quot;
+fi
+                 —— by 张帅
+                 
+#!/bin/bash
+FILE=/etc/inittab
+if [ ! -e $FILE ]; then
+  echo &quot;No $FILE.&quot;
+  exit 8
+fi
+
+if grep &quot;^$&quot; $FILE &amp;&gt; /dev/null; then
+  echo &quot;Total blank lines: `grep &quot;^$&quot; $FILE | wc -l`.&quot;
+else
+  echo &quot;No blank line.&quot;
+fi
+</code></pre>
+<p>写一个脚本<br>给定一个用户，判断其UID与GID是否一样<br>如果一样，就显示此用户为“good guy”；否则，就显示此用户为“bad  guy”。 </p>
+<pre><code>#!/bin/bash
+USERNAME=user1
+USERID=`id -u $USERNAME`
+GROUPID=`id -g $USERNAME`
+if [ $USERID -eq $GROUPID ]; then
+  echo &quot;Good guy.&quot;
+else
+  echo &quot;Bad guy.&quot;
+fi
+
+进一步要求：不使用id命令获得其id号；
+
+#!/bin/bash
+#
+USERNAME=user1
+if ! grep &quot;^$USERNAME\&gt;&quot; /etc/passwd &amp;&gt; /dev/null; then
+  echo &quot;No such user: $USERNAME.&quot;
+  exit 1
+fi
+
+USERID=`grep &quot;^$USERNAME\&gt;&quot; /etc/passwd | cut -d: -f3`
+GROUPID=`grep &quot;^$USERNAME\&gt;&quot; /etc/passwd | cut -d: -f4`
+if [ $USERID -eq $GROUPID ]; then
+  echo &quot;Good guy.&quot;
+else
+  echo &quot;Bad guy.&quot;
+fi
+</code></pre>
+<p>写一个脚本<br>给定一个用户，获取其密码警告期限；<br>而后判断用户密码使用期限是否已经小于警告期限； </p>
+<pre><code>提示：计算方法，最长使用期限减去已经使用的天数即为剩余使用期限；
+
+如果小于，则显示“Warning”；否则，就显示“OK”。
+
+圆整：丢弃小数点后的所有内容
+注：密码文件有些用户的密码修改时间为空，没有处理
+
+#!/bin/bash
+W=`grep &quot;student&quot; /etc/shadow | cut -d: -f6`
+S=`date +%s`
+T=`expr $S/86400`
+L=`grep &quot;^student&quot; /etc/shadow | cut -d: -f5`
+N=`grep &quot;^student&quot; /etc/shadow | cut -d: -f3`
+SY=$[$L-$[$T-$N]]
+
+if [ $SY -lt $W ]; then
+  echo &#39;Warning&#39;
+else
+  echo &#39;OK&#39;
+fi
+
+                    —— by 董利东
+</code></pre>
+<p>写一个脚本<br>给定一个文件：<br>如果是一个普通文件，就显示之；<br>如果是一个目录，亦显示之；<br>否则，此为无法识别之文件；</p>
+<p>写一脚本<br>能接受一个参数(文件路径)<br>判定：此参数如果是一个存在的文件，就显示“OK.”；否则就显示”No such file.”</p>
+<p>写一个脚本<br>给脚本传递两个参数(整数)；<br>显示此两者之和，之乘积；  </p>
+<pre><code>#!/bin/bash
+#
+if [ $# -lt 2 ]; then
+  echo &quot;Usage: cacl.sh ARG1 ARG2&quot;
+  exit 8
+fi
+
+echo &quot;The sum is: $[$1+$2].&quot;
+echo &quot;The prod is: $[$1*$2].&quot;
+</code></pre>
+<p>写一个脚本，完成以下任务<br>1、使用一个变量保存一个用户名；<br>2、删除此变量中的用户，且一并删除其家目录；<br>3、显示“用户删除完成”类的信息；  </p>
+<p>写一个脚本<br>传递一个参数(单字符就行)给脚本，如参数为q，就退出脚本；否则，就显示用户的参数；  </p>
+<p>写一个脚本<br>传递一个参数(单字符就行)给脚本，如参数为q、Q、quit或Quit，就退出脚本；否则，就显示用户的参数；  </p>
+<pre><code>#!/bin/bash
+#
+if [ $1 = &#39;q&#39; ];then
+  echo &quot;Quiting...&quot;
+  exit 1
+elif [ $1 = &#39;Q&#39; ];then
+  echo &quot;Quiting...&quot;
+  exit 2  
+elif [ $1 = &#39;quit&#39; ];then
+  echo &quot;Quiting...&quot;
+  exit 3 
+elif [ $1 = &#39;Quit&#39; ];then
+  echo &quot;Quiting...&quot;
+  exit 4  
+else
+  echo $1
+fi
+</code></pre>
+<p>传递三个参数给脚本，第一个为整数，第二个为算术运算符，第三个为整数，将计算结果显示出来，要求保留两位精度。形如：  </p>
+<pre><code>./calc.sh 5 / 2
+Linux中计算可以使用bc计算器
+[root@localhost shells]# echo &quot;scale=2;5/2&quot;|bc
+2.50
+</code></pre>
+<p>传递3个参数给脚本，参数均为用户名。将此些用户的帐号信息提取出来后放置于&#x2F;tmp&#x2F;testusers.txt文件中，并要求每一行行首有行号。  </p>
+<p>写一个脚本：<br>判断当前主机的CPU生产商，其信息在&#x2F;proc&#x2F;cpuinfo文件中vendor id一行中。 </p>
+<pre><code>如果其生产商为AuthenticAMD，就显示其为AMD公司；
+如果其生产商为GenuineIntel，就显示其为Intel公司；
+否则，就说其为非主流公司；
+</code></pre>
+<p>写一个脚本：<br>给脚本传递三个整数，判断其中的最大数和最小数，并显示出来。</p>
+<pre><code>MAX=0
+MAX -eq $1
+MAX=$1
+MAX -lt $2
+MAX=$2
+</code></pre>
+<p>写一个脚本：<br>1、设定变量FILE的值为&#x2F;etc&#x2F;passwd<br>2、依次向&#x2F;etc&#x2F;passwd中的每个用户问好，并显示对方的shell，形如：    </p>
+<pre><code>Hello, root, your shell: /bin/bash
+</code></pre>
+<p>3、统计一共有多少个用户  </p>
+<pre><code>for I in `seq 1 $LINES`; do echo &quot;Hello, `head -n $I /etc/passwd | tail -1 | cut -d: -f1`&quot;; done
+</code></pre>
+<p>只向默认shell为bash的用户问声好</p>
+<p>写一个脚本：<br>1、添加10个用户user1到user10，密码同用户名；但要求只有用户不存在的情况下才能添加；  </p>
+<pre><code>扩展：
+接受一个参数：
+add: 添加用户user1..user10
+del: 删除用户user1..user10
+其它：退出
+adminusers user1,user2,user3,hello,hi
+</code></pre>
+<p>写一个脚本：<br>计算100以内所有能被3整除的正整数的和；</p>
+<pre><code>取模，取余:%
+3%2=1
+100%55=45
+</code></pre>
+<p>写一个脚本：<br>计算100以内所有奇数的和以及所有偶数的和；分别显示之；  </p>
+<pre><code>let I=$[$I+1]
+SUM=$[$SUM+$I]
+
+let SUM+=$I
+
+let I+=1 相当于 let I++
+
+let I-=1 相当于 let I--
+    
+++I, --I
+
+*=、/=、%=
+</code></pre>
+<p>写一个脚本<br>分别显示当前系统上所有默认shell为bash的用户和默认shell为&#x2F;sbin&#x2F;nologin的用户，并统计各类shell下的用户总数。显示结果形如：  </p>
+<pre><code>BASH，3users，they are:
+root,redhat,gentoo
+
+NOLOGIN, 2users, they are:
+bin,ftp
+
+
+#!/bin/bash
+#
+NUMBASH=`grep &quot;bash$&quot; /etc/passwd | wc -l`
+BASHUSERS=`grep &quot;bash$&quot; /etc/passwd | cut -d: -f1`
+BASHUSERS=`echo $BASHUSERS | sed &#39;s@[[:space:]]@,@g&#39;`
+
+echo &quot;BASH, $NUMBASH users, they are:&quot;
+echo &quot;$BASHUSERS
+</code></pre>
+<p>写一个脚本，利用RANDOM生成10个随机数，并找出其中的最大值，和最小值；</p>
+<pre><code>#!/bin/bash
+#
+declare -i MAX=0
+declare -i MIN=0
+
+for I in &#123;1..10&#125;; do
+  MYRAND=$RANDOM
+  [ $I -eq 1 ] &amp;&amp; MIN=$MYRAND
+  if [ $I -le 9 ]; then
+    echo -n &quot;$MYRAND,&quot;
+  else
+    echo &quot;$MYRAND&quot;
+  fi
+  [ $MYRAND -gt $MAX ] &amp;&amp; MAX=$MYRAND
+  [ $MYRAND -lt $MIN ] &amp;&amp; MIN=$MYRAND
+done
+
+echo $MAX, $MIN
+</code></pre>
+<p>写一个脚本<br>通过命令行传递一个文件路径参数给脚本：  </p>
+<pre><code>如果参数多了或少了，报错；
+如果参数指定的路径对应的是目录而不是文件，报错；
+</code></pre>
+<p>而后，检查路径指定的文件是否为空或不存在，如果是，则新建此文件，并在文件中生成如下内容</p>
+<pre><code>#!/bin/bash
+# 
+</code></pre>
+<p>而后，使用vim编辑器打开此文件，并让光标处于这个文件的最后一行；</p>
+<p>写个脚本，按如下方式执行：  </p>
+<pre><code>mkscript.sh -v|--version VERSION -a|--author AUTHOR -t|--time DATETIME -d|--description DESCRIPTION -f|--file /PATH/TO/FILE -h|--help 
+</code></pre>
+<p>1、此脚本能创建或打开-f选项指向的文件&#x2F;PATH&#x2F;TO&#x2F;FILE；如果其为空文件，能自动为其生成第一行；如果文件不空，且第一行不是#!&#x2F;bin&#x2F;bash，则中止此脚本，并报错“The file is not a bash script.”；否则，则直接使用vim 打开此文件；<br>提示：&#x2F;PATH&#x2F;TO&#x2F;FILE，要判断其目录是否存在；如果不存在，则报错；</p>
+<p>2、如果为空文件，自动生成的第一行内容为：</p>
+<pre><code>#!/bin/bash
+</code></pre>
+<p>3、如果为空文件，且使用了-a选项，则在文件中添加“# Author: -a选项的参数”，比如：</p>
+<pre><code># Author: Jerry
+</code></pre>
+<p>4、如果为空文件，且使用了-t选项，则在文件中添加“# Date: 脚本执行-t选项后指定的时间”，比如：</p>
+<pre><code># Date: 2013-03-08 18:05
+</code></pre>
+<p>5、如果为空文件，且使用了-d选项，则在文件中添加“# Description: -d选项的内容”，比如：</p>
+<pre><code># Description: Create a bash script file head.
+</code></pre>
+<p>6、如果为空文件，且使用了-v选项，则在文件添加“# Version: -v后跟的参数”，比如:<br>    # Version: 0.1<br>6、-h选项只能单独使用，用于显示使用帮助；<br>7、其它选项，显示帮助信息；  </p>
+<p>说明：<br>这是一个用于创建脚本的脚本，它可以自动帮助创建一个bash脚本的文件头，这样，以后使用此脚本来创建其它脚本将变得比较高效。比如：</p>
+<pre><code>#!/bin/bash
+# Author: Jerry(jerry@magedu.com)
+# Date: 2013-03-08 18:05
+# Description: Create a bash script file head.
+# Version: 0.1
+</code></pre>
+<p>计算100以内所有正整数的和</p>
+<pre><code>#!/bin/bash
+declare -i I=1
+declare -i SUM=0
+
+while [ $I -le 100 ]; do
+  let SUM+=$I
+  let I++
+done
+
+echo $SUM
+</code></pre>
+<p>练习：转换用户输入的字符为大写，除了quit:</p>
+<pre><code>#!/bin/bash
+#
+read -p &quot;Input something: &quot; STRING
+
+while [ $STRING != &#39;quit&#39; ]; do
+  echo $STRING | tr &#39;a-z&#39; &#39;A-Z&#39;
+  read -p &quot;Input something: &quot; STRING
+done
+</code></pre>
+<p>每隔5秒查看hadoop用户是否登录，如果登录，显示其登录并退出；否则，显示当前时间，并说明hadoop尚未登录：</p>
+<pre><code>#!/bin/bash
+#
+who | grep &quot;hadoop&quot; &amp;&gt; /dev/null
+RETVAL=$?
+
+while [ $RETVAL -ne 0 ]; do
+  echo &quot;`date`, hadoop is not log.&quot; 
+  sleep 5
+  who | grep &quot;hadoop&quot; &amp;&gt; /dev/null
+  RETVAL=$?
+done
+
+echo &quot;hadoop is logged in.&quot;
+</code></pre>
+<p>写一个脚本：  </p>
+<ol>
+<li><p>显示一个菜单给用户：  </p>
+<p> d|D) show disk usages.<br> m|M) show memory usages.<br> s|S) show swap usages.<br> *) quit.</p>
+</li>
+<li><p>当用户给定选项后显示相应的内容；</p>
+</li>
+</ol>
+<p>扩展：<br>    当用户选择完成，显示相应信息后，不退出；而让用户再一次选择，再次显示相应内容；除了用户使用quit；</p>
+<pre><code>#!/bin/bash
+#
+cat &lt;&lt; EOF
+d|D) show disk usages.
+m|M) show memory usages.
+s|S) show swap usages.
+*) quit.
+EOF
+
+read -p &quot;Your choice: &quot; CHOICE
+while [ $CHOICE != &#39;quit&#39; ];do
+  case $CHOICE in
+  d|D)
+    echo &quot;Disk usage: &quot;
+    df -Ph ;;
+  m|M)
+    echo &quot;Memory usage: &quot;
+    free -m | grep &quot;Mem&quot; ;;
+  s|S)
+    echo &quot;Swap usage: &quot;
+    free -m | grep &quot;Swap&quot; ;;
+  *)
+    echo &quot;Unknown..&quot; ;;
+  esac
+
+read -p &quot;Again, your choice: &quot; CHOICE
+done
+</code></pre>
+<p>写一个脚本：  </p>
+<p>1、通过ping命令测试192.168.0.151到192.168.0.254之间的所有主机是否在线，</p>
+<pre><code>如果在线，就显示&quot;ip is up.&quot;，其中的IP要换为真正的IP地址，且以绿色显示；
+如果不在线，就显示&quot;ip is down.&quot;，其中的IP要换为真正的IP地址，且以红色显示；
+
+echo -e &quot;\033[33;44mhello wrold\033[0m&quot;
+echo -e &quot;\033[33;44;1mhello wrold\033[0m&quot;
+    -e:开启转义字符
+    \033[： 后面跟着具体设置
+    1m：高亮显示
+    4m：下划线
+    30-37；前景色
+    40-47：后景色
+    5m：闪烁
+    7m：反显
+    8m：消隐
+    9m：斜线
+
+awk &#39;PATTERN&#123;ACTION&#125;&#39; file
+
+[root@localhost /]# awk -F : &#39;&#123;print $1,$3&#125;&#39; /etc/passwd
+root 0
+bin 1
+daemon 2
+注：-F指定分隔符，$#代表分割后的第几列
+</code></pre>
+<p>要求：分别使用while，until和for(两种形式)循环实现。<br>ping -c -W	</p>
+<p>写一个脚本，完成如下功能：<br>说明：此脚本能够为指定网卡创建别名，则指定地址；使用格式如：</p>
+<pre><code>mkethalias.sh -v|--verbose -i ethX  
+</code></pre>
+<p>1、-i选项用于指定网卡；指定完成后，要判断其是否存在，如果不存在，就退出；<br>2、如果用户指定的网卡存在，则让用户为其指定一个别名，此别名可以为空；如果不空，请确保其事先不存在，否则，要报错，并让用户重新输入；<br>3、在用户输入了一个正确的别名后，请用户输入地址和掩码；并将其配置在指定的别名上；<br>4、如果用户使用了-v选项，则在配置完成后，显示其配置结果信息；否则，将不显示；</p>
+<p>写一个脚本，完成以下功能：  </p>
+<pre><code>1、提示用户输入一个用户名；
+2、显示一个菜单给用户，形如：
+U|u  show UID
+G|g  show GID
+S|s  show SHELL
+Q|q  quit
+3、提醒用户选择一个选项，并显示其所选择的内容；
+</code></pre>
+<p>如果用户给的是一个非上述所提示的选项，则提醒用户给出的选项错误，并请其重新选择后执行；</p>
+<p>写一个脚本：<br>1、判断一个指定的bash脚本是否有语法错误；如果有错误，则提醒用户键入Q或者q无视错误并退出，其它任何键可以通过vim打开这个指定的脚本；<br>2、如果用户通过vim打开编辑后保存退出时仍然有错误，则重复第1步中的内容；否则，就正常关闭退出。  </p>
+<pre><code>./syntax.sh a.sh
+
+until bash -n $1 &amp;&gt; /dev/null; do
+    read -p &quot;Syntax error, [Qq] to quit, others for editing: &quot;  CHOICE
+    case $CHOICE in
+    q|Q)
+        echo &quot;Something wrong, quiting.&quot;
+        exit 5
+        ;;
+    *)
+        vim + $1
+        ;;
+    esac
+done
+
+echo &quot;0K&quot;
+</code></pre>
+<p>练习：写一个脚本，判定192.168.0.200-192.168.0.254之间的主机哪些在线。要求：<br>1、使用函数来实现一台主机的判定过程；<br>2、在主程序中来调用此函数判定指定范围内的所有主机的在线情况。</p>
+<pre><code>#!/bin/bash
+#
+PING() &#123;
+  for I in &#123;200..254&#125;;do
+    if ping -c 1 -W 1 192.168.0.$I &amp;&gt; /dev/null; then
+      echo &quot;192.168.0.$I is up.&quot;
+    else
+      echo &quot;192.168.0.$I is down.&quot;
+    fi
+  done
+&#125;
+
+PING
+
+
+
+
+#!/bin/bash
+#
+PING() &#123;
+    if ping -c 1 -W 1 $1 &amp;&gt; /dev/null; then
+      echo &quot;$1 is up.&quot;
+    else
+      echo &quot;$1 is down.&quot;
+    fi
+&#125;
+
+for I in &#123;200..254&#125;; do
+  PING 192.168.0.$I
+done
+
+
+#!/bin/bash
+#
+PING() &#123;
+    if ping -c 1 -W 1 $1 &amp;&gt; /dev/null; then
+      return 0
+    else
+      return 1
+    fi
+&#125;
+
+for I in &#123;200..254&#125;; do
+  PING 192.168.0.$I
+  if [ $? -eq 0 ]; then
+    echo &quot;192.168.0.$I is up.&quot;
+  else
+    echo &quot;192.168.0.$I is down.&quot;
+  fi
+done
+</code></pre>
+<p>写一个脚本：使用函数完成<br>1、函数能够接受一个参数，参数为用户名； </p>
+<ul>
+<li>判断一个用户是否存在  </li>
+<li>如果存在，就返回此用户的shell和UID；并返回正常状态值；  </li>
+<li>如果不存在，就说此用户不存在；并返回错误状态值；</li>
+</ul>
+<p>2、在主程序中调用函数；  </p>
+<ul>
+<li><p>扩展1：在主程序中，让用户自己输入用户名后，传递给函数来进行判断；</p>
+</li>
+<li><p>扩展2：在主程序中，输入用户名判断后不退出脚本，而是提示用户继续输入下一个用户名；如果用户输入的用户不存在，请用户重新输入；但如果用户输入的是q或Q就退出；</p>
+<pre><code>  #!/bin/bash
+  #
+  user () &#123;
+  if id $1 &amp;&gt; /dev/null ;then
+  echo &quot;`grep ^$1  /etc/passwd | cut -d: -f3,7`&quot;
+     return 0
+  else
+     echo &quot;no $1&quot;
+      return 1
+  fi
+  &#125;
+  read -p &quot;please input username:&quot; username
+  until [ $username == q -o $username == Q ]; do
+      user $username
+      if [ $? == 0 ];then
+          read -p &quot;please input again:&quot; username
+      else
+          read -p &quot;no $username,please input again:&quot; username
+      fi
+  done
+</code></pre>
+</li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://example.com">QiYan</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2022/11/27/Linux-shell/">http://example.com/2022/11/27/Linux-shell/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com" target="_blank">知与行</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/shell/">shell</a></div><div class="post_share"><div class="social-share" data-image="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2022/11/27/Linux-crond/"><img class="prev-cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Linux计划任务和日志</div></div></a></div><div class="next-post pull-right"><a href="/2022/11/27/Linux-program/"><img class="next-cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Linux进程管理</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/avatar.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">QiYan</div><div class="author-info__description">学而不思则惘 思而不学则殆</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">12</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">16</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content"></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80%E5%88%86%E7%B1%BB"><span class="toc-number">1.</span> <span class="toc-text">编程语言分类</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%98%E9%87%8F"><span class="toc-number">2.</span> <span class="toc-text">变量</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%84%9A%E6%9C%AC"><span class="toc-number">3.</span> <span class="toc-text">脚本</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%80%BB%E8%BE%91%E8%BF%90%E7%AE%97"><span class="toc-number">4.</span> <span class="toc-text">逻辑运算</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9D%A1%E4%BB%B6%E5%88%A4%E6%96%AD"><span class="toc-number">5.</span> <span class="toc-text">条件判断</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AE%97%E6%9C%AF%E8%BF%90%E7%AE%97"><span class="toc-number">6.</span> <span class="toc-text">算术运算</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%80%80%E5%87%BA%E7%8A%B6%E6%80%81%E7%A0%81"><span class="toc-number">7.</span> <span class="toc-text">退出状态码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A3%80%E6%9F%A5%E8%AF%AD%E6%B3%95%E9%94%99%E8%AF%AF"><span class="toc-number">8.</span> <span class="toc-text">检查语法错误</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BE%AA%E7%8E%AF"><span class="toc-number">9.</span> <span class="toc-text">循环</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#declare%E5%91%BD%E4%BB%A4"><span class="toc-number">10.</span> <span class="toc-text">declare命令</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#shell%E9%80%89%E9%A1%B9"><span class="toc-number">11.</span> <span class="toc-text">shell选项</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%87%BD%E6%95%B0"><span class="toc-number">12.</span> <span class="toc-text">函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B6%E5%AE%83"><span class="toc-number">13.</span> <span class="toc-text">其它</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%83%E4%B9%A0"><span class="toc-number">14.</span> <span class="toc-text">练习</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/11/27/Linux-crond/" title="Linux计划任务和日志">Linux计划任务和日志</a><time datetime="2022-11-27T14:18:13.863Z" title="发表于 2022-11-27 22:18:13">2022-11-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/11/27/Linux-shell/" title="Shell编程">Shell编程</a><time datetime="2022-11-27T14:05:00.135Z" title="发表于 2022-11-27 22:05:00">2022-11-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/11/27/Linux-program/" title="Linux进程管理">Linux进程管理</a><time datetime="2022-11-27T13:35:48.747Z" title="发表于 2022-11-27 21:35:48">2022-11-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/11/27/combute-basic/" title="计算机基础">计算机基础</a><time datetime="2022-11-27T13:25:06.024Z" title="发表于 2022-11-27 21:25:06">2022-11-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/11/27/Linux-network/" title="Linux网络基础">Linux网络基础</a><time datetime="2022-11-27T13:24:30.781Z" title="发表于 2022-11-27 21:24:30">2022-11-27</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By QiYan</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

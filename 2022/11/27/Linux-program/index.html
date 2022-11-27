@@ -1,0 +1,315 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>Linux进程管理 | 知与行</title><meta name="author" content="QiYan"><meta name="copyright" content="QiYan"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="进程基础 进程也被叫做运行中的程序。当我们安装完软件之后，只是将软件文件保存在了硬盘中。我们运行软件，则会生成进程。计算机可以运行多个进程，但我们的内存只有一个。因此多个进程要对内存进行管理，这时我们采用虚拟地址空间避免进程去操作不属于自己的内存。在运行过程中所有进程需要的内存可能大于物理内存，这时我们需要使用虚拟内存和页面置换技术。计算机的多进程同时依赖于CPU（单核）的时间分片，因此在运行过程">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux进程管理">
+<meta property="og:url" content="http://example.com/2022/11/27/Linux-program/index.html">
+<meta property="og:site_name" content="知与行">
+<meta property="og:description" content="进程基础 进程也被叫做运行中的程序。当我们安装完软件之后，只是将软件文件保存在了硬盘中。我们运行软件，则会生成进程。计算机可以运行多个进程，但我们的内存只有一个。因此多个进程要对内存进行管理，这时我们采用虚拟地址空间避免进程去操作不属于自己的内存。在运行过程中所有进程需要的内存可能大于物理内存，这时我们需要使用虚拟内存和页面置换技术。计算机的多进程同时依赖于CPU（单核）的时间分片，因此在运行过程">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-11-27T13:35:48.747Z">
+<meta property="article:modified_time" content="2022-11-27T13:35:48.745Z">
+<meta property="article:author" content="QiYan">
+<meta property="article:tag" content="进程">
+<meta name="twitter:card" content="summary"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2022/11/27/Linux-program/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Linux进程管理',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-11-27 21:35:48'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/font.css"><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="知与行" type="application/atom+xml">
+</head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/avatar.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">12</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">16</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">知与行</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Linux进程管理</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-11-27T13:35:48.747Z" title="发表于 2022-11-27 21:35:48">2022-11-27</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-11-27T13:35:48.745Z" title="更新于 2022-11-27 21:35:48">2022-11-27</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Linux/">Linux</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">1.7k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>6分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Linux进程管理"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="进程基础"><a href="#进程基础" class="headerlink" title="进程基础"></a>进程基础</h2><blockquote>
+<p>进程也被叫做运行中的程序。当我们安装完软件之后，只是将软件文件保存在了硬盘中。我们运行软件，则会生成进程。计算机可以运行多个进程，但我们的内存只有一个。因此多个进程要对内存进行管理，这时我们采用虚拟地址空间避免进程去操作不属于自己的内存。在运行过程中所有进程需要的内存可能大于物理内存，这时我们需要使用虚拟内存和页面置换技术。计算机的多进程同时依赖于CPU（单核）的时间分片，因此在运行过程中我们需要进行进程切换。</p>
+</blockquote>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/u014379540/article/details/52263114">https://blog.csdn.net/u014379540/article/details/52263114</a></p>
+<h2 id="Linux查看进程命令"><a href="#Linux查看进程命令" class="headerlink" title="Linux查看进程命令"></a>Linux查看进程命令</h2><p>ps: Process State 查看进程状态</p>
+<pre><code>BSD风格:
+
+a: 所有与终端有关的进程 
+u: 显示更详细信息
+x: 所有与终端无关的进程
+
+[demo@localhost ~]$ ps -aux
+USER        PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root          1  0.2  0.5 194160  5088 ?        Ss   09:15   0:04 /usr/lib/systemd/systemd --switched-root --system --deseri
+root          2  0.0  0.0      0     0 ?        S    09:15   0:00 [kthreadd]
+root          4  0.0  0.0      0     0 ?        S&lt;   09:15   0:00 [kworker/0:0H]
+root          5  0.0  0.0      0     0 ?        S    09:15   0:01 [kworker/u256:0]
+demo      19682  0.0  0.2 157456  2228 pts/0    R+   09:41   0:00 ps -aux
+
+字段含义：
+    USER：进程拥有者
+    PID ：进程ID
+    %CPU：占用的CPU使用率，它是使用的CPU时间除以进程已运行的时间（cputime/realtime比率），以百分比表示。除非你运气好，否则加起来不会达到100%
+    %MEM：进程占用的内存使用率
+    VSZ ：进程虚拟内存大小，一个进程使用的物理空间外加其所有共享库的空间。即进程可能使用的最大内存量。
+    RSS ：驻留集大小，进程中不能被交换出去部分（分页）的物理内存（指令和变量）。
+    TTY ：登入者的终端位置,?表示与终端无关
+    STAT：进程状态
+    START：进程的启动时间
+    TIME：进程已执行的时间
+    COMMAND：所执行的指令，加中括号表示是内核线程。
+
+进程状态：
+    D：不可中断的睡眠（比如磁盘IO，如果该进程所属条件（将文件读入内存中）没有完成不能结束中断）
+    R：运行或就绪
+    S：可中断的睡眠（比如网卡，当有数据到来之后可以立即结束中断）
+    T：停止
+    Z：僵死（运行结束，但是没有释放资源）
+    
+    &lt;：高优先级进程
+    N： 低优先级进程
+    +：前台进程组（一个bash下可以运行很多进程，这些进程属于同一个进程组）中的进程
+    l: 多线程进程
+    s: 会话进程首进程（用户建立的连接。比如ssh，下面会有很多子进程。如果该进程结束，它下面的进程都会被结束）
+
+SysV风格：-
+ps	
+    -elF
+    -ef
+    -eF
+    -e：显示所有进程
+
+ps -o PROPERTY1,PROPERTY2
+
+ps -o pid,comm,ni ：指定命令输出字段
+
+[demo@localhost ~]$ ps -axo pid,comm,ni
+   PID COMMAND          NI
+ 10056 bash              0
+ 10473 ps                0
+
+
+[demo@localhost ~]$ ps -elF
+F S UID         PID   PPID  C PRI  NI ADDR SZ WCHAN    RSS PSR STIME TTY          TIME CMD
+4 S root          1      0  0  80   0 - 48542 ep_pol  5056   0 08:55 ?        00:00:03 /usr/lib/systemd/systemd --switched-root --system --deserialize 22
+1 S root          2      0  0  80   0 -     0 kthrea     0   0 08:55 ?        00:00:00 [kthreadd]
+1 S root          4      2  0  60 -20 -     0 worker     0   0 08:55 ?        00:00:00 [kworker/0:0H]
+1 S root          5      2  0  80   0 -     0 worker     0   0 08:55 ?        00:00:00 [kworker/u256:0]
+注：PRI：优先级、NI：nice值、PSR：运行在哪个cpu上、PPID：父进程ID
+
+[demo@localhost ~]$ ps -ef
+UID         PID   PPID  C STIME TTY          TIME CMD
+root          1      0  0 08:55 ?        00:00:03 /usr/lib/systemd/systemd --switched-root --system --deserialize 22
+root          2      0  0 08:55 ?        00:00:00 [kthreadd]
+
+[demo@localhost ~]$ ps -eF
+UID         PID   PPID  C    SZ   RSS PSR STIME TTY          TIME CMD
+root          1      0  0 48542  5056   0 08:55 ?        00:00:03 /usr/lib/systemd/systemd --switched-root --system --deserialize 22
+root          2      0  0     0     0   0 08:55 ?        00:00:00 [kthreadd]
+
+注：init或systemd: 进程号为1，是操作系统启动后的第一个进程，也是所有进程的父进程。
+</code></pre>
+<p>pstree: 显示当前系统上的进程</p>
+<p>pgrep：匹配进程名对应的pid</p>
+<pre><code>[demo@localhost ~]$ pgrep systemd
+1
+506
+544
+1152
+20169
+</code></pre>
+<p>pidof: 根据程序名称，查找其相关进程的ID号</p>
+<pre><code>[demo@localhost ~]$ pidof systemd
+1
+</code></pre>
+<p>top：展示Linux进程信息</p>
+<pre><code> -d: 指定延迟时长，单位是秒
+-b: 批模式
+-n #：在批模式下，共显示多少批
+
+top命令：https://www.cnblogs.com/niuben/p/12017242.html
+
+
+    常用命令：
+    M: 根据驻留内存大小进行排序
+    P：根据CPU使用百分比进行排序
+    T: 根据累计时间进行排序
+    
+    l: 是否显示平均负载和启动时间
+    t: 是否显示进程和CPU状态相关信息
+    m: 是否显示内存相关信息
+    
+    c: 是否显示完整的命令行信息
+    q: 退出top
+    k: 终止某个进程
+</code></pre>
+<p>vmstat:系统状态查看命令</p>
+<pre><code>vmstat n m：该命令是每n秒统计一次系统资源，共统计m次
+</code></pre>
+<p><a target="_blank" rel="noopener" href="https://www.linuxprobe.com/linux-vmstat-explain.html">https://www.linuxprobe.com/linux-vmstat-explain.html</a></p>
+<h2 id="Linux进程间通信"><a href="#Linux进程间通信" class="headerlink" title="Linux进程间通信"></a>Linux进程间通信</h2><p>通信方式：</p>
+<ul>
+<li>共享内存</li>
+<li>信号: Signal</li>
+<li>Semaphore</li>
+</ul>
+<p>kill命令：向进程发送信号  </p>
+<p>重要的信号：</p>
+<ul>
+<li>1：SIGHUP: 让一个进程不用重启，就可以重读其配置文件，并让新的配置信息生效；</li>
+<li>2: SIGINT：Ctrl+c: 中断一个进程</li>
+<li>9: SIGKILL：杀死一个进程</li>
+<li>15: SIGTERM：终止一个进程, 默认信号.中断进程时首先用-15，以便于其能够预先清理临时文件和释放资源。-9作为最后手段，应对哪些失控的进程</li>
+</ul>
+<p>kill使用：</p>
+<pre><code>使用信号号码：kill -1 pid
+使用信号名称：kill -SIGKILL pid
+使用信号名称简写：kill -KILL pid
+</code></pre>
+<p>killall COMMAND：杀死指定名字的所有进程</p>
+<h2 id="其它"><a href="#其它" class="headerlink" title="其它"></a>其它</h2><p>调整nice值：</p>
+<pre><code>调整已经启动的进程的nice值：
+renice NI PID
+
+在启动时指定nice值：
+nice -n NI COMMAND
+</code></pre>
+<p>前台作业：占据了命令提示符<br>后台作业：启动之后，释放命令提示符，后续的操作在后台完成  </p>
+<p>前台–&gt;后台：</p>
+<pre><code>Ctrl+z: 把正在前台的作业送往后台（调往后台的进程会中断并停止运行）
+COMMAND &amp;：让命令在后台执行（调往后台的进程会继续执行）
+</code></pre>
+<p>jobs: 查看后台的所有作业</p>
+<pre><code>作业号，不同于进程号
+    +：命令将默认操作的作业
+    -：命令将第二个默认操作的作业
+[demo@localhost ~]$ jobs
+[1]+  Stopped                 tar -zcvf etc.tar.gz /etc/*
+</code></pre>
+<p>bg: 让后台的停止作业继续运行（我在CentOS7中使用该命令和感觉有问题）  </p>
+<pre><code>bg [[%]JOBID]
+</code></pre>
+<p>fg: 将后台的作业调回前台</p>
+<pre><code>fg [[%]JOBID]
+</code></pre>
+<p>kill %JOBID: 终止某作业</p>
+<p>&#x2F;proc目录下的每个数字文件夹都代表着相应的进程<br>&#x2F;proc&#x2F;meminfo文件中是内存的相应信息</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://example.com">QiYan</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2022/11/27/Linux-program/">http://example.com/2022/11/27/Linux-program/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com" target="_blank">知与行</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E8%BF%9B%E7%A8%8B/">进程</a></div><div class="post_share"><div class="social-share" data-image="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2022/11/27/Linux-shell/"><img class="prev-cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Shell编程</div></div></a></div><div class="next-post pull-right"><a href="/2022/11/27/combute-basic/"><img class="next-cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">计算机基础</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/avatar.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">QiYan</div><div class="author-info__description">学而不思则惘 思而不学则殆</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">12</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">16</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content"></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%9B%E7%A8%8B%E5%9F%BA%E7%A1%80"><span class="toc-number">1.</span> <span class="toc-text">进程基础</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux%E6%9F%A5%E7%9C%8B%E8%BF%9B%E7%A8%8B%E5%91%BD%E4%BB%A4"><span class="toc-number">2.</span> <span class="toc-text">Linux查看进程命令</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1"><span class="toc-number">3.</span> <span class="toc-text">Linux进程间通信</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B6%E5%AE%83"><span class="toc-number">4.</span> <span class="toc-text">其它</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/11/27/Linux-crond/" title="Linux计划任务和日志">Linux计划任务和日志</a><time datetime="2022-11-27T14:18:13.863Z" title="发表于 2022-11-27 22:18:13">2022-11-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/11/27/Linux-shell/" title="Shell编程">Shell编程</a><time datetime="2022-11-27T14:05:00.135Z" title="发表于 2022-11-27 22:05:00">2022-11-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/11/27/Linux-program/" title="Linux进程管理">Linux进程管理</a><time datetime="2022-11-27T13:35:48.747Z" title="发表于 2022-11-27 21:35:48">2022-11-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/11/27/combute-basic/" title="计算机基础">计算机基础</a><time datetime="2022-11-27T13:25:06.024Z" title="发表于 2022-11-27 21:25:06">2022-11-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/11/27/Linux-network/" title="Linux网络基础">Linux网络基础</a><time datetime="2022-11-27T13:24:30.781Z" title="发表于 2022-11-27 21:24:30">2022-11-27</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By QiYan</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

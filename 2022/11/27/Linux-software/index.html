@@ -1,0 +1,810 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>Linux软件包管理 | 知与行</title><meta name="author" content="QiYan"><meta name="copyright" content="QiYan"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="程序介绍 我们将语言分为两种。一种是编译器语言，另一种是解释性语言。编译语言以C语言为例，需要将源代码–&gt;（编译）二进制格式才能在机器上运行。编译的过程大致如下：源代码–&gt;编译–&gt;链接–&gt;运行。其中链接分为两种：一种是静态链接，另一种是动态链接。静态链接是由链接器在链接时将库的内容加入到可执行程序中的做法。动态链接则是在第一次访问库时将库加载到内存中，之后所有的程序在需要时">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux软件包管理">
+<meta property="og:url" content="http://example.com/2022/11/27/Linux-software/index.html">
+<meta property="og:site_name" content="知与行">
+<meta property="og:description" content="程序介绍 我们将语言分为两种。一种是编译器语言，另一种是解释性语言。编译语言以C语言为例，需要将源代码–&gt;（编译）二进制格式才能在机器上运行。编译的过程大致如下：源代码–&gt;编译–&gt;链接–&gt;运行。其中链接分为两种：一种是静态链接，另一种是动态链接。静态链接是由链接器在链接时将库的内容加入到可执行程序中的做法。动态链接则是在第一次访问库时将库加载到内存中，之后所有的程序在需要时">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-11-27T13:23:18.034Z">
+<meta property="article:modified_time" content="2022-11-27T13:23:18.033Z">
+<meta property="article:author" content="QiYan">
+<meta property="article:tag" content="yum">
+<meta property="article:tag" content="rpm">
+<meta name="twitter:card" content="summary"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2022/11/27/Linux-software/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Linux软件包管理',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-11-27 21:23:18'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/font.css"><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="知与行" type="application/atom+xml">
+</head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/avatar.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">12</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">16</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">知与行</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Linux软件包管理</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-11-27T13:23:18.034Z" title="发表于 2022-11-27 21:23:18">2022-11-27</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-11-27T13:23:18.033Z" title="更新于 2022-11-27 21:23:18">2022-11-27</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Linux/">Linux</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">4.8k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>20分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Linux软件包管理"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="程序介绍"><a href="#程序介绍" class="headerlink" title="程序介绍"></a>程序介绍</h2><blockquote>
+<p>我们将语言分为两种。一种是编译器语言，另一种是解释性语言。编译语言以C语言为例，需要将源代码–&gt;（编译）二进制格式才能在机器上运行。编译的过程大致如下：源代码–&gt;编译–&gt;链接–&gt;运行。其中链接分为两种：一种是静态链接，另一种是动态链接。静态链接是由链接器在链接时将库的内容加入到可执行程序中的做法。动态链接则是在第一次访问库时将库加载到内存中，之后所有的程序在需要时都可以直接访问该库。解释性语言是边读取边翻译的过程，脚本便是一种解释性语言。  </p>
+</blockquote>
+<p>程序：指令+数据</p>
+<pre><code>指令：芯片
+    CPU: 普通指令，特权指令
+    指令集
+注：不同CPU的指令集是不相同的，所以在一些机器上编译的程序不能在另一些机器上直接使用。
+</code></pre>
+<p>程序的组成：</p>
+<ul>
+<li>二进制程序</li>
+<li>库</li>
+<li>配置文件</li>
+<li>帮助文件</li>
+</ul>
+<h2 id="程序介绍-1"><a href="#程序介绍-1" class="headerlink" title="程序介绍"></a>程序介绍</h2><p>linux文件夹介绍：</p>
+<pre><code>/boot
+/etc
+/usr
+/var
+/dev
+/lib
+/tmp
+/bin
+/sbin
+/proc
+/sys
+/mnt
+/media
+/home
+/root
+/misc
+/opt
+/srv
+
+具体分析：
+
+
+/etc, /bin, /sbin, /lib
+    系统启动就需要用到的程序，这些目录不能挂载额外的分区，必须在根文件系统的分区上
+    
+/usr/
+    etc
+    bin
+    sbin
+    lib
+    操作系统核心功能，可以单独分区。该程序下的配置文件一般也在/etc下
+
+/usr/share/man：上面两种程序的帮助文档位置
+
+/usr/local
+    bin
+    sbin
+    lib
+    etc
+    man
+    第三方程序，可以单独分区
+
+/opt：一些比较老的第三方程序的默认存放路径，可以单独分区
+
+/proc
+/sys
+    伪文件系统，不能单独分区，默认为空；
+
+/dev: 设备，不能单独分区；
+   udev机制：
+
+/home:建议单独分区，防止操作系统重装等操作时用户数据丢失。
+
+/root: 不能单独分区
+
+/var：建议单独分区
+
+/boot：内核，initrd(initramfs)： 建议单独分区
+     内核：
+     
+     操作系统加载顺序POST--&gt;BIOS(HD)--&gt;(MBR)bootloader(该模块应该能理解文件系统结构，ext2, ext3, xfs)--&gt;内核
+     bootloader根据活动分区直接去定位内核位置，然后加载内核。中间和根目录没有关系。操作系统启动后，然后寻找根，并将boot目录挂载到根下。
+     建议给boot单独分区，然后将根目录挂载到LVM分区下。因为LVM是操作系统功能，boot需要在操作系统启动前加载。这样可以在需要时，增大根目录下的空间。
+</code></pre>
+<h2 id="软件包管理器"><a href="#软件包管理器" class="headerlink" title="软件包管理器"></a>软件包管理器</h2><p> 软件包管理器的核心功能</p>
+<ul>
+<li>制作软件包；  </li>
+<li>安装、卸载、升级、查询、校验；</li>
+</ul>
+<p>不同系统上的软件包管理器</p>
+<ul>
+<li>Redhat, SUSE: RPM (PRM is Package Manager)</li>
+<li>Debian: dpt</li>
+</ul>
+<p>依赖关系:  </p>
+<pre><code>依赖关系顾名思义就是A软件需要使用B软件的某些功能。比如X依赖于Y，Y依赖于Z。X--&gt;Y--&gt;Z
+</code></pre>
+<p>工具分类：</p>
+<ul>
+<li>前端工具（自动处理依赖关系）：yum, apt-get</li>
+<li>后端工具（手动处理依赖关系）：RPM, dpt</li>
+</ul>
+<h2 id="rpm基础"><a href="#rpm基础" class="headerlink" title="rpm基础"></a>rpm基础</h2><p>rpm的主要功能为安装、查询、卸载、升级、校验、数据库的重建、验正数据包等工作；</p>
+<p>rpm包来源：</p>
+<pre><code>二进制格式
+    rpm包作者下载源程序，编译配置完成后，制作成rpm包。因此rpm包安装后可以直接运行。
+    bind-9.7.1-1.noarch.rpm
+    bind-9.7.1-1.ppc.rpm
+</code></pre>
+<p>rpm包命名格式：</p>
+<pre><code>假设源码格式为：bind-9.7.1.tar.gz
+
+包：组成部分（为了防止包过大，可能会将包拆为主包和子包）
+    主包：
+        bind-9.7.1-1.el5.i586.rpm
+    子包：
+        bind-libs-9.7.1-1.el5.i586.rpm
+        bind-utils-9.7.1-1.el5.i586.rpm
+包名格式：
+    name-version-release.arch.rpm
+    bind-major.minor.release1-release2.arch.rpm
+
+主版本号：重大改进
+次版本号：某个子功能发生重大变化
+发行号1：修正了部分bug，调整了一点功能
+
+发行号2:rpm包的版本号，上面三个版本号和源码包保持一致。
+arch：硬件平台
+
+bind-9.7.1-1.el5.i586.rpm
+    9.7.1和源码包一致，分别是主版本号、次版本号、发行号1
+    1.el5是发行号2,其中1代表rpm的发行版本，el5代表的是redhat 5系统。如果不限制系统el5可以直接省略
+    i586是arch：该值代表了32位的硬件平台。noarch代表不限制硬件平台。
+</code></pre>
+<p>查看主机的操作系统和硬件平台版本：</p>
+<pre><code>[demo@localhost dev]$ uname -a
+Linux localhost.localdomain 3.10.0-1062.el7.x86_64 #1 SMP Wed Aug 7 18:08:02 UTC 2019 x86_64 x86_64 x86_64 GNU/Linux
+</code></pre>
+<h2 id="rpm命令"><a href="#rpm命令" class="headerlink" title="rpm命令"></a>rpm命令</h2><p>RadHat安装盘中含有很多rpm安装包，可以将安装盘挂载在文件系统中。然后获取rpm安装包。  </p>
+<pre><code> /dev/cdrom：光盘设备命名  
+</code></pre>
+<p>1、安装</p>
+<pre><code>rpm -i /PATH/TO/PACKAGE_FILE
+    -h: 以#显示进度；每个#表示2%; 
+    -v: 显示详细过程
+    -vv: 更详细的过程
+
+rpm -ivh /PATH/TO/PACKAGE_FILE
+    --nodeps: 忽略依赖关系；（可以安装，但安装上软件也不能使用）
+    --replacepkgs: 重新安装，替换原有安装；
+    --force: 强行安装，可以实现重装或降级；
+
+\\ 安装
+[root@localhost demo]# rpm -ivh zsh-5.0.2-33.el7.x86_64.rpm 
+warning: zsh-5.0.2-33.el7.x86_64.rpm: Header V3 RSA/SHA256 Signature, key ID f4a80eb5: NOKEY
+Preparing...                          ################################# [100%]
+Updating / installing...
+   1:zsh-5.0.2-33.el7                 ################################# [100%]
+
+\\ 存在依赖，安装失败
+[root@localhost demo]# rpm -ivh tomcat-7.0.76-9.el7_6.noarch.rpm 
+warning: tomcat-7.0.76-9.el7_6.noarch.rpm: Header V3 RSA/SHA256 Signature, key ID f4a80eb5: NOKEY
+error: Failed dependencies:
+    apache-commons-collections is needed by tomcat-0:7.0.76-9.el7_6.noarch
+    apache-commons-daemon is needed by tomcat-0:7.0.76-9.el7_6.noarch
+    apache-commons-dbcp is needed by tomcat-0:7.0.76-9.el7_6.noarch
+    apache-commons-logging is needed by tomcat-0:7.0.76-9.el7_6.noarch
+    apache-commons-pool is needed by tomcat-0:7.0.76-9.el7_6.noarch
+    tomcat-lib = 0:7.0.76-9.el7_6 is needed by tomcat-0:7.0.76-9.el7_6.noarch
+</code></pre>
+<p>2、查询（PACKAGE_NAME可以是安装包的前缀）</p>
+<pre><code>rpm -q PACKAGE_NAME： 查询指定的包是否已经安装
+rpm -qa : 查询已经安装的所有包
+
+rpm -qi PACKAGE_NAME: 查询指定包的说明信息；
+rpm -ql PACKAGE_NAME: 查询指定包安装后生成的文件列表；
+rpm -qc PACEAGE_NEME：查询指定包安装的配置文件；
+rpm -qd PACKAGE_NAME: 查询指定包安装的帮助文件；
+
+rpm -q --scripts PACKAGE_NAME: 查询指定包中包含的脚本
+    
+rpm -qf /path/to/somefile: 查询指定的文件是由哪个rpm包安装生成的；
+    
+如果某rpm包尚未安装，我们需查询其说明信息、安装以后会生成的文件；
+rpm -qpi /PATH/TO/PACKAGE_FILE
+rpm -qpl
+
+
+示例：
+[root@localhost demo]# rpm -q zsh
+zsh-5.0.2-33.el7.x86_64
+注：rpm -q zsh* 这种查询的是当前目录下以zsh开头的文件或文件夹名称是否安装
+
+[root@localhost demo]# rpm -q tomcat
+package tomcat is not installed
+
+[root@localhost demo]# rpm -qi zsh-5.0.2-33.el7.x86_64
+Name        : zsh
+Version     : 5.0.2
+Release     : 33.el7
+Architecture: x86_64
+Install Date: Fri 07 Jan 2022 11:02:48 PM EST
+Group       : System Environment/Shells
+Size        : 5856382
+License     : MIT
+Signature   : RSA/SHA256, Thu 22 Aug 2019 05:45:54 PM EDT, Key ID 24c6a8a7f4a80eb5
+Source RPM  : zsh-5.0.2-33.el7.src.rpm
+Build Date  : Thu 22 Aug 2019 01:13:36 PM EDT
+Build Host  : x86-01.bsys.centos.org
+Relocations : (not relocatable)
+Packager    : CentOS BuildSystem &lt;http://bugs.centos.org&gt;
+Vendor      : CentOS
+URL         : http://zsh.sourceforge.net/
+Summary     : Powerful interactive shell
+Description :
+The zsh shell is a command interpreter usable as an interactive login
+shell and as a shell script command processor.  Zsh resembles the ksh
+shell (the Korn shell), but includes many enhancements.  Zsh supports
+command line editing, built-in spelling correction, programmable
+command completion, shell functions (with autoloading), a history
+mechanism, and more.
+
+[root@localhost demo]# rpm -ql zsh-5.0.2-33.el7.x86_64
+/bin/zsh
+/etc/skel/.zshrc
+/etc/zlogin
+/etc/zlogout
+/etc/zprofile
+/etc/zshenv
+/etc/zshrc
+/usr/lib64/zsh
+                   ....
+
+[root@localhost demo]# rpm -q --scripts zsh-5.0.2-33.el7.x86_64
+postinstall scriptlet (using /bin/sh):
+if [ ! -f /etc/shells ] ; then
+    echo &quot;/bin/zsh&quot; &gt; /etc/shells
+else
+    grep -q &quot;^/bin/zsh$&quot; /etc/shells || echo &quot;/bin/zsh&quot; &gt;&gt; /etc/shells
+fi
+
+if [ -f /usr/share/info/zsh.info.gz ]; then
+# This is needed so that --excludedocs works.
+/sbin/install-info /usr/share/info/zsh.info.gz /usr/share/info/dir \
+  --entry=&quot;* zsh: (zsh).			An enhanced bourne shell.&quot;
+fi
+
+:
+preuninstall scriptlet (using /bin/sh):
+if [ &quot;$1&quot; = 0 ] ; then
+    if [ -f /usr/share/info/zsh.info.gz ]; then
+    # This is needed so that --excludedocs works.
+    /sbin/install-info --delete /usr/share/info/zsh.info.gz /usr/share/info/dir \
+      --entry=&quot;* zsh: (zsh).			An enhanced bourne shell.&quot;
+    fi
+fi
+:
+postuninstall scriptlet (using /bin/sh):
+if [ &quot;$1&quot; = 0 ] ; then
+    if [ -f /etc/shells ] ; then
+        TmpFile=`/bin/mktemp /tmp/.zshrpmXXXXXX`
+        grep -v &#39;^/bin/zsh$&#39; /etc/shells &gt; $TmpFile
+        cp -f $TmpFile /etc/shells
+        rm -f $TmpFile
+    fi
+fi
+
+[root@localhost bin]# rpm -qf zsh
+zsh-5.0.2-33.el7.x86_64
+</code></pre>
+<p>3、升级</p>
+<pre><code>rpm -Uvh /PATH/TO/NEW_PACKAGE_FILE: 如果装有老版本的，则升级；否则，则安装；
+rpm -Fvh /PATH/TO/NEW_PACKAGE_FILE：如果装有老版本的，则升级；否则，退出；
+    --oldpackage: 降级
+</code></pre>
+<p>4、卸载</p>
+<pre><code>rpm -e PACKAGE_NAME
+    --nodeps :忽略依赖关系
+
+[root@localhost bin]# rpm -e zsh-5.0.2-33.el7.x86_64
+</code></pre>
+<p>5、校验  </p>
+<pre><code>rpm -V PACKAGE_NAME
+
+[root@localhost demo]# rpm -V zsh
+S.5....T.  c /etc/zshrc
+
+注：该选项是校验rpm产生的所有文件是否和原始rpm包中文件的信息是否一致。其中S代表文件大小不一致，M代表对应文件的权限不一致，5代表对应文件的MD5不一致，D代表文件的major和minor号不一致，L代表文件的符号链接内容不一致，U代表文件的owner不一致，G表示文件的Group不一致，T表示文件的修改时间不一致，c只有文件是一个配置文件时才会有此标识。没有变化的文件不列出。
+</code></pre>
+<p>6、重建数据库</p>
+<pre><code>rpm数据库位置:/var/lib/rpm
+rpm 
+    --rebuilddb: 重建数据库，一定会重新建立；
+    --initdb：初始化数据库，没有才建立，有就不用建立；
+
+该命令执行过程中要等待一段时间。
+</code></pre>
+<p>7、检验来源合法性，及软件包完整性； (校验rpm包) </p>
+<p>加密类型：</p>
+<ul>
+<li>对称：加密解密使用同一个密钥</li>
+<li>公钥：一对儿密钥，公钥，私钥；公钥隐含于私钥中，可以提取出来，并公开出去；</li>
+<li>单向：</li>
+</ul>
+<p>红帽的公钥：</p>
+<pre><code># ls /etc/pki/rpm-gpg/
+RPM-GPG-KEY-redhat-release
+注：由于我们目前是直接使用的红帽光盘安装rpm，故我们目前使用红帽的公钥。如果rpm是从其它来源获得，则需使用来源处获取的公钥。
+</code></pre>
+<p>rpm –import &#x2F;etc&#x2F;pki&#x2F;rpm-gpg&#x2F;RPM-GPG-KEY-redhat-release: 导入密钥文件</p>
+<pre><code>[root@localhost rpm-gpg]# rpm --import RPM-GPG-KEY-CentOS-7
+</code></pre>
+<p>rpm -K &#x2F;PAPT&#x2F;TO&#x2F;PACKAGE_FILE</p>
+<pre><code>dsa, gpg: 验正来源合法性，也即验正签名；可以使用--nosignature，略过此项
+sha1, md5: 验正软件包完整性；可以使用--nodigest，略过此项
+
+[root@localhost rpm-gpg]# rpm -K /home/demo/zsh-5.0.2-33.el7.x86_64.rpm 
+/home/demo/zsh-5.0.2-33.el7.x86_64.rpm: rsa sha1 (md5) pgp md5 OK
+</code></pre>
+<blockquote>
+<p>注：ldd &#x2F;PATH&#x2F;TO&#x2F;BINARY_FILE #查看二进制程序依赖的库文件<br>   ldconfig -p # 查看本机已经缓存的所有可用库文件名以及文件路径映射关系</p>
+</blockquote>
+<h2 id="yum命令"><a href="#yum命令" class="headerlink" title="yum命令"></a>yum命令</h2><p>1、yum仓库中的元数据文件</p>
+<pre><code> primary.xml.gz
+ - 所有RPM包的列表；
+ - 依赖关系；
+ - 每个RPM安装生成的文件列表；
+ 
+ filelists.xml.gz
+ - 当前仓库中所有RPM包的所有文件列表；
+
+ other.xml.gz
+ - 额外信息，RPM包的修改日志；
+ 
+ repomd.xml
+ - 记录的是上面三个文件的时间戳和校验和；（每次访问yum仓库都会下载该文件，然后和本地的前三个文件进行比较，如果不一致则重新下载上述三个文件。）
+ 
+ comps*.xml: 
+ - RPM包分组信息；（该文件包含了rpm分组，每个分组中包含了必须安装的软件、推荐安装的软件、选择安装的软件）
+</code></pre>
+<p>2、本机的yum源配置</p>
+<p>配置文件地址：&#x2F;etc&#x2F;yum.repos.d</p>
+<p>如何为yum定义repo文件</p>
+<pre><code>[Repo_ID]（配置标签名）
+name=Description （名称）
+baseurl= （地址）
+    ftp://
+    http://
+    file:///
+enabled=&#123;1|0&#125; （该配置时候可用）
+gpgcheck=&#123;1|0&#125; （是否校验完整性和来源合法性）
+gpgkey= （） （来源的公钥）
+
+
+例：
+[base]
+name=CentOS-$releasever - Base
+mirrorlist=http://mirrorlist.centos.org/?release=$releasever&amp;arch=$basearch&amp;repo=os&amp;infra=$infra
+#baseurl=http://mirror.centos.org/centos/$releasever/os/$basearch/
+         ftp://172.16.0.1/pub/&#123;Server,VT,Cluster,ClusterStorage&#125;
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+</code></pre>
+<p>3、yum命令</p>
+<p>yum [options] [command] [package …]</p>
+<pre><code>-y: 自动回答为yes
+--nogpgcheck
+
+list: 列表 
+    支持glob：例 yum list all zsh*，后面可以跟包名和*号
+    all:所有的
+    available：可用的，仓库中有但尚未安装的
+    installed: 已经安装的
+    updates: 可用的升级
+
+[root@localhost media]# yum list available|head -10
+Loaded plugins: fastestmirror, langpacks
+Loading mirror speeds from cached hostfile
+Available Packages
+389-ds-base.x86_64                      1.3.9.1-10.el7                      demo
+389-ds-base-libs.x86_64                 1.3.9.1-10.el7                      demo
+ElectricFence.x86_64                    2.2.2-39.el7                        demo
+ImageMagick.x86_64                      6.7.8.9-18.el7                      demo
+ImageMagick-c++.x86_64                  6.7.8.9-18.el7                      demo
+ImageMagick-perl.x86_64                 6.7.8.9-18.el7                      demo
+LibRaw.x86_64                           0.19.2-1.el7                        demo
+yum源名：@base该包已经安装，且是从base安装的
+        @anaconda该报已经安装，且是从操作系统的安装程序anaconda安装的
+        installed 表示该包是由rpm手动安装的
+      
+</code></pre>
+<p>clean: 清理yum下的缓存（目录在&#x2F;var&#x2F;cache&#x2F;yum下）</p>
+<pre><code>[ packages | headers | metadata | dbcache | all ]
+</code></pre>
+<p>repolist: 显示repo列表及其简要信息</p>
+<pre><code>all
+enabled： 默认
+disabled: 禁用
+
+[root@localhost demo]# yum repolist all
+Loaded plugins: fastestmirror, langpacks
+Loading mirror speeds from cached hostfile
+repo id                           repo name                              status
+demo                              centos-demo                            enabled: 4,067
+repolist: 4,067
+</code></pre>
+<p>install: 安装<br>update: 升级<br>update_to: 升级为指定版本<br>remove|erase：卸载</p>
+<pre><code>yum install PACKAGE_NAME
+
+[root@localhost demo]# yum remove zsh
+Loaded plugins: fastestmirror, langpacks
+Resolving Dependencies
+--&gt; Running transaction check
+---&gt; Package zsh.x86_64 0:5.0.2-33.el7 will be erased
+--&gt; Finished Dependency Resolution
+
+Dependencies Resolved
+
+=======================================================================================
+ Package        Arch              Version                   Repository            Size
+=======================================================================================
+Removing:
+ zsh            x86_64            5.0.2-33.el7              installed            5.6 M
+
+Transaction Summary
+=======================================================================================
+Remove  1 Package
+
+Installed size: 5.6 M
+Is this ok [y/N]: y
+Downloading packages:
+Running transaction check
+Running transaction test
+Transaction test succeeded
+Running transaction
+Warning: RPMDB altered outside of yum.
+  Erasing    : zsh-5.0.2-33.el7.x86_64                                             1/1 
+warning: /etc/zshrc saved as /etc/zshrc.rpmsave
+  Verifying  : zsh-5.0.2-33.el7.x86_64                                             1/1 
+
+Removed:
+  zsh.x86_64 0:5.0.2-33.el7                                                            
+
+Complete!
+</code></pre>
+<p>info: 查看包的说明信息</p>
+<pre><code>[root@localhost bin]# yum info zsh
+Loaded plugins: fastestmirror, langpacks
+Loading mirror speeds from cached hostfile
+Installed Packages
+Name        : zsh
+Arch        : x86_64
+Version     : 5.0.2
+Release     : 33.el7
+Size        : 5.6 M
+Repo        : installed
+From repo   : demo
+Summary     : Powerful interactive shell
+URL         : http://zsh.sourceforge.net/
+License     : MIT
+Description : The zsh shell is a command interpreter usable as an interactive login
+            : shell and as a shell script command processor.  Zsh resembles the ksh
+            : shell (the Korn shell), but includes many enhancements.  Zsh supports
+            : command line editing, built-in spelling correction, programmable
+            : command completion, shell functions (with autoloading), a history
+            : mechanism, and more.
+</code></pre>
+<p>provides| whatprovides: 查看指定的文件或特性是由哪个包安装生成的。; </p>
+<pre><code>[root@localhost etc]# yum provides zsh
+Loaded plugins: fastestmirror, langpacks
+Loading mirror speeds from cached hostfile
+zsh-5.0.2-33.el7.x86_64 : Powerful interactive shell
+Repo        : demo
+
+
+
+zsh-5.0.2-33.el7.x86_64 : Powerful interactive shell
+Repo        : @demo
+
+[root@localhost usr]# yum provides /etc/zshrc
+Loaded plugins: fastestmirror, langpacks
+Loading mirror speeds from cached hostfile
+zsh-5.0.2-33.el7.x86_64 : Powerful interactive shell
+Repo        : demo
+Matched from:
+Filename    : /etc/zshrc
+
+
+
+zsh-5.0.2-33.el7.x86_64 : Powerful interactive shell
+Repo        : @demo
+Matched from:
+Filename    : /etc/zshrc
+</code></pre>
+<p>grouplist：查看组列表。有些默认不显示，可以使用hidden参数</p>
+<pre><code>[root@localhost usr]# yum grouplist hidden
+Loaded plugins: fastestmirror, langpacks
+There is no installed groups file.
+Maybe run: yum groups mark convert (see man yum)
+Loading mirror speeds from cached hostfile
+Installed Environment Groups:
+   Development and Creative Workstation
+Available Environment Groups:(可用环境组)
+   Minimal Install
+   Compute Node
+   Infrastructure Server
+   File and Print Server
+   Basic Web Server
+   Virtualization Host
+   Server with GUI
+   GNOME Desktop
+   KDE Plasma Workspaces
+   Development and Creative Workstation
+Installed Groups:
+   Development Tools
+Available Groups:（可用组）
+   Additional Development
+                          ....       
+
+\\ 以上命令也可以使用
+[root@localhost usr]# yum grouplist Deve*
+</code></pre>
+<p>groupinfo：查看组信息</p>
+<pre><code>[root@localhost usr]# yum groupinfo &quot;Development Tools&quot;
+Loaded plugins: fastestmirror, langpacks
+There is no installed groups file.
+Maybe run: yum groups mark convert (see man yum)
+Loading mirror speeds from cached hostfile
+
+Group: Development Tools
+Group-Id: development
+ Description: A basic development environment.
+ Mandatory Packages:（必须安装）
+    autoconf
+    automake
+    binutils
+    ...
+
+ Default Packages:（默认安装）
+    byacc
+    cscope
+    ctags
+    ...
+ Optional Packages:（可选）
+   ElectricFence
+   ant
+   babel
+   bzr
+   chrpath
+    ...
+</code></pre>
+<p>groupinstall：安装<br>groupremove：移除<br>groupupdate：更新  </p>
+<pre><code>[root@localhost media]# yum groupinstall &quot;Development Tools&quot; --setopt=group_package_types=mandatory,default,optional
+Loaded plugins: fastestmirror, langpacks
+There is no installed groups file.
+Maybe run: yum groups mark convert (see man yum)
+Loading mirror speeds from cached hostfile
+Resolving Dependencies
+--&gt; Running transaction check
+                        ....
+</code></pre>
+<p><a target="_blank" rel="noopener" href="https://blog.51cto.com/u_4528728/3804803">https://blog.51cto.com/u_4528728&#x2F;3804803</a>  </p>
+<blockquote>
+<p>如何创建yum仓库的元数据：   </p>
+<p>createrepo: <a target="_blank" rel="noopener" href="https://blog.csdn.net/u013158317/article/details/95587397">https://blog.csdn.net/u013158317/article/details/95587397</a></p>
+</blockquote>
+<div class="note green icon-padding flat">
+<p>练习：</p>  
+<p>1、将系统安装光盘挂载至/media/yum目录，用其实现yum仓库；  </p>  
+<p>2、配置使用http://172.16.0.1/yum/{Server,VT,Cluster,ClusterStorage}为可用yum仓库；</p>
+
+<p>写一个脚本，完成以下功能：  </p>
+<p>说明：此脚本能于同一个repo文件中创建多个Yum源的指向；  </p>
+<p>1、接受一个文件名做为参数，此文件存放至/etc/yum.repos.d目录中，且文件名以.repo为后缀；要求，此文件不能事先存，否则，报错；  </p>
+<p>2、在脚本中，提醒用户输入repo id；如果为quit，则退出脚本；否则，继续完成下面的步骤； </p>
+<p>3、repo name以及baseurl的路径，而后以repo文件的格式将其保存至指定的文件中；</p>  
+<p>4、enabled默认为1，而gpgcheck默认设定为0；  </p>
+<p>5、此脚本会循环执行多次，除非用户为repo id指定为quit；  </p>
+</div>  
+
+<h2 id="手动编译安装软件"><a href="#手动编译安装软件" class="headerlink" title="手动编译安装软件"></a>手动编译安装软件</h2><p>RPM安装：  </p>
+<pre><code>二进制格式：
+源程序--&gt;编译--&gt;二进制格式
+    有些特性是编译选定的，如果编译未选定此特性，将无法使用；
+    rpm包的版本会落后于源码包，甚至落后很多；bind-9.8.7, bind-9.7.2
+定制：手动编译安装
+</code></pre>
+<p>相关工具：</p>
+<pre><code>gcc: GNU C Complier, C语言编译工具
+g++: C++语言编译工具
+
+make: 项目管理工具
+    makefile: 定义了make（gcc,g++）按何种次序去编译这些源程序文件中的源程序
+
+使用automake--&gt; makefile.in，使用autoconf--&gt; configure，获取的源码中会包含以上两个文件。
+
+然后makefile.in和configure得到makefile
+</code></pre>
+<p>编译安装的步骤：</p>
+<ol>
+<li><p>前提：准备开发环境(编译环境)<br>安装”Development Tools”和”Development Libraries” </p>
+</li>
+<li><p>获取源码包</p>
+<pre><code> [root@localhost Desktop]# ll
+ total 1016
+ -rw-rw-r--+ 1 demo demo       0 Dec 25 04:42 demo2.txt
+ -rwxrw-rw-+ 1 demo demo 1039530 Jan  8 07:59 nginx-1.18.0.tar.gz
+</code></pre>
+</li>
+<li><p>解压源码包</p>
+<pre><code> [root@localhost Desktop]# tar -zxvf nginx-1.18.0.tar.gz 
+</code></pre>
+</li>
+<li><p>指定编译特性</p>
+<pre><code> # cd
+ # ./configure  
+ --help 
+ --prefix=/path/to/somewhere
+ --sysconfdir=/PATH/TO/CONFFILE_PATH
+ 功能：1、让用户选定编译特性；2、检查编译环境
+ 
+ // 查看软件支持的特性
+ [root@localhost nginx-1.18.0]# ./configure --help
+
+ // 指定软件的编译特性
+ [root@localhost nginx-1.18.0]# ./configure --prefix=/usr/local/nginx --conf-path=/usr/local/etc --without-http_rewrite_module --without-http_gzip_module
+</code></pre>
+</li>
+<li><p>编译</p>
+<pre><code>  make
+</code></pre>
+</li>
+<li><p>安装</p>
+<pre><code> make install
+</code></pre>
+</li>
+<li><p>修改PATH环境变量，以能够识别此程序的二进制文件路径；</p>
+<pre><code> 修改/etc/profile文件，然后执行source /etc/profile
+ 在/etc/profile.d/目录建立一个以.sh为名称后缀的文件，在里面定义export PATH=$PATH:/path/to/somewhere
+</code></pre>
+</li>
+<li><p>默认情况下，系统搜索库文件的路径&#x2F;lib, &#x2F;usr&#x2F;lib; 要增添额外搜寻路径：</p>
+<pre><code> 在/etc/ld.so.conf.d/中创建以.conf为后缀名的文件，而后把要增添的路径直接写至此文件中；
+ # ldconfig 通知系统重新搜寻库文件
+     -v: 显示重新搜寻库的过程
+</code></pre>
+</li>
+<li><p>头文件：输出给系统</p>
+<pre><code> 默认：/usr/include
+ 增添头文件搜寻路径，使用链接进行：
+     /usr/local/tengine/include/   /usr/include/
+     两种方式：
+     ln -s /usr/local/tengine/include/* /usr/include/ 或
+     ln -s /usr/local/tengine/include  /usr/include/tengine(建议这种)
+</code></pre>
+</li>
+<li><p>man文件路径：安装在–prefix指定的目录下的man目录；&#x2F;usr&#x2F;share&#x2F;man	</p>
+<pre><code>1、man -M /PATH/TO/MAN_DIR COMMAND
+2、在/etc/man.config中添加一条MANPATH
+</code></pre>
+</li>
+<li><p>删除软件只需要将软件生成的文件以及上述修改删除即可。</p>
+</li>
+</ol>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://example.com">QiYan</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2022/11/27/Linux-software/">http://example.com/2022/11/27/Linux-software/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com" target="_blank">知与行</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/yum/">yum</a><a class="post-meta__tags" href="/tags/rpm/">rpm</a></div><div class="post_share"><div class="social-share" data-image="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2022/11/27/Linux-network/"><img class="prev-cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Linux网络基础</div></div></a></div><div class="next-post pull-right"><a href="/2022/11/27/Linux-VI/"><img class="next-cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">vi编辑器</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/avatar.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">QiYan</div><div class="author-info__description">学而不思则惘 思而不学则殆</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">12</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">16</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content"></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A8%8B%E5%BA%8F%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.</span> <span class="toc-text">程序介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A8%8B%E5%BA%8F%E4%BB%8B%E7%BB%8D-1"><span class="toc-number">2.</span> <span class="toc-text">程序介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BD%AF%E4%BB%B6%E5%8C%85%E7%AE%A1%E7%90%86%E5%99%A8"><span class="toc-number">3.</span> <span class="toc-text">软件包管理器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#rpm%E5%9F%BA%E7%A1%80"><span class="toc-number">4.</span> <span class="toc-text">rpm基础</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#rpm%E5%91%BD%E4%BB%A4"><span class="toc-number">5.</span> <span class="toc-text">rpm命令</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#yum%E5%91%BD%E4%BB%A4"><span class="toc-number">6.</span> <span class="toc-text">yum命令</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%89%8B%E5%8A%A8%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E8%BD%AF%E4%BB%B6"><span class="toc-number">7.</span> <span class="toc-text">手动编译安装软件</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/11/27/Linux-crond/" title="Linux计划任务和日志">Linux计划任务和日志</a><time datetime="2022-11-27T14:18:13.863Z" title="发表于 2022-11-27 22:18:13">2022-11-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/11/27/Linux-shell/" title="Shell编程">Shell编程</a><time datetime="2022-11-27T14:05:00.135Z" title="发表于 2022-11-27 22:05:00">2022-11-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/11/27/Linux-program/" title="Linux进程管理">Linux进程管理</a><time datetime="2022-11-27T13:35:48.747Z" title="发表于 2022-11-27 21:35:48">2022-11-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/11/27/combute-basic/" title="计算机基础">计算机基础</a><time datetime="2022-11-27T13:25:06.024Z" title="发表于 2022-11-27 21:25:06">2022-11-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/11/27/Linux-network/" title="Linux网络基础">Linux网络基础</a><time datetime="2022-11-27T13:24:30.781Z" title="发表于 2022-11-27 21:24:30">2022-11-27</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By QiYan</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
