@@ -5,9 +5,10 @@
 <meta property="og:site_name" content="知与行">
 <meta property="og:description" content="任务计划1、在未来的某个时间点执行一次某任务； at batch  at 时间 at&gt; COMMAND at&gt; Ctrl+d  指定时间：     绝对时间：HH:MM， DD.MM.YY  MM&#x2F;DD&#x2F;YY     相对时间：now+#         单位：minutes, hours, days, weeks     模糊时间：noon, midnight, teatime  命">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2022-11-27T14:18:13.863Z">
-<meta property="article:modified_time" content="2022-11-27T14:17:24.913Z">
+<meta property="article:published_time" content="2022-11-28T02:39:38.213Z">
+<meta property="article:modified_time" content="2022-11-28T02:39:38.212Z">
 <meta property="article:author" content="QiYan">
+<meta property="article:tag" content="LOG">
 <meta name="twitter:card" content="summary"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2022/11/27/Linux-crond/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
   root: '/',
   algolia: undefined,
@@ -54,7 +55,7 @@
   isHome: false,
   isHighlightShrink: false,
   isToc: true,
-  postUpdate: '2022-11-27 22:17:24'
+  postUpdate: '2022-11-28 10:39:38'
 }</script><noscript><style type="text/css">
   #nav {
     opacity: 1
@@ -144,7 +145,7 @@
     }
     detectApple()
     })(window)</script><link rel="stylesheet" href="/css/font.css"><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="知与行" type="application/atom+xml">
-</head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/avatar.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">12</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">16</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">知与行</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Linux计划任务和日志</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-11-27T14:18:13.863Z" title="发表于 2022-11-27 22:18:13">2022-11-27</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-11-27T14:17:24.913Z" title="更新于 2022-11-27 22:17:24">2022-11-27</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Linux/">Linux</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">1.2k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>4分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Linux计划任务和日志"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="任务计划"><a href="#任务计划" class="headerlink" title="任务计划"></a>任务计划</h2><p>1、在未来的某个时间点执行一次某任务；</p>
+</head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/avatar.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">12</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">17</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">知与行</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Linux计划任务和日志</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-11-28T02:39:38.213Z" title="发表于 2022-11-28 10:39:38">2022-11-28</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-11-28T02:39:38.212Z" title="更新于 2022-11-28 10:39:38">2022-11-28</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Linux/">Linux</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">3.4k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>12分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Linux计划任务和日志"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="任务计划"><a href="#任务计划" class="headerlink" title="任务计划"></a>任务计划</h2><p>1、在未来的某个时间点执行一次某任务；</p>
 <pre><code>at
 batch
 
@@ -213,13 +214,17 @@ cron的环境变量：cron执行所有命令都去PATH环境变量指定的路�
         -r: 移除所有任务
         -u USERNAME: 管理其用户的cron任务
 </code></pre>
-<h2 id="Linux上的日志系统"><a href="#Linux上的日志系统" class="headerlink" title="Linux上的日志系统"></a>Linux上的日志系统</h2><h3 id="CentOS5-系统"><a href="#CentOS5-系统" class="headerlink" title="CentOS5 系统"></a>CentOS5 系统</h3><p>syslog服务：  </p>
+<h2 id="Linux上的日志系统"><a href="#Linux上的日志系统" class="headerlink" title="Linux上的日志系统"></a>Linux上的日志系统</h2><blockquote>
+<p>CentOS 6之前只有rsyslogd 的年代中，由于 rsyslogd 必须要开机完成并且执行了 rsyslogd 这个daemon 之后，日志文件才会开始记录。所以，核心还得要自己产生一个 klogd 的服务，才能将系统在开机过程、启动服务过程中的信息记录下来。然后等 rsyslogd 启动后才传送给它来处理。 现在有了systemd 之后，由于这玩意儿是核心唤醒的，然后又是第一支执行的软件，它可以主动调用 systemd-journald 来协助记载登录文件。因此在开机过程中的所有信息，包括启动服务与服务若启动失败的情况等等，都可以直接被记录到systemd-journald 里头去！</p>
+</blockquote>
+<p>syslog服务：  </p>
 <ul>
 <li>syslogd: 系统，非内核产生的信息  </li>
 <li>klogd：内核，专门负责记录内核产生的日志信息</li>
 </ul>
 <blockquote>
-<p>CentOS 7.x 使用 systemd 提供的 journalctl 日志管理</p>
+<p>CentOS 7.x 使用systemd 提供的 journalctl 日志管理<br>           rsyslog.service：主要记录系统与网络等服务的讯息<br>           logrotate：主要在进行登录文件的轮替功能。</p>
+<p>系统由systemd 所管理，那所有经由 systemd 启动的服务，如果再启动或结束的过程中发生一些问题或者是正常的讯息, 就会将该讯息由 systemd-journald.service 以二进制的方式记录下来，之后再将这个讯息发送给rsyslog.service 作进一步的记载。 systemd-journald.service 的记录主要都放置于内存中，因此在存取方面性能比较好。我们也能够通过journalctl 以及 systemctl status unit.service 来查看各个不同服务的登录文件！这有个好处，就是日志文件可以随着个别服务让你查阅，在单一服务的处理上面，要比跑到 &#x2F;var&#x2F;log&#x2F;messages 去大海捞针来的简易很多！</p>
 </blockquote>
 <p>kernel –&gt; 物理终端(&#x2F;dev&#x2F;console) –&gt; &#x2F;var&#x2F;log&#x2F;dmesg（系统启动日志）</p>
 <pre><code># dmesg
@@ -228,10 +233,16 @@ cron的环境变量：cron执行所有命令都去PATH环境变量指定的路�
 <p>日志需要滚动(日志切割)：</p>
 <pre><code>messages messages.1 messages.2 messages.3
 </code></pre>
-<p>&#x2F;sbin&#x2F;init </p>
-<pre><code>/var/log/messages: 系统标准错误日志信息；非内核产生引导信息；各子系统产生的信息；
-/var/log/maillog: 邮件系统产生的日志信息；
-/var/log/secure: 
+<p>常见日志文件：</p>
+<pre><code>/var/log/boot.log： 开机的时候系统核心会去侦测与启动硬件，接下来开始各种核心支持的功能启动等。这些流程都会记录在 /var/log/boot.log 里面哩！ 不过这个文件只会存在这次开机启动的信息，前次开机的信息并不会被保留下来！
+/var/log/cron： crontab 调度有没有实际被进行？ 进行过程有没有发生错误？你的 /etc/crontab 是否撰写正确？在这个登录文件内查询看看。
+/var/log/dmesg： 记录系统在开机的时候核心侦测过程所产生的各项信息。由于 CentOS 默认将开机时核心的硬件侦测过程取消显示， 因此额外将数据记录一份在这个文件中；
+/var/log/lastlog： 可以记录系统上面所有的帐号最近一次登陆系统时的相关信息。
+/var/log/maillog 或 /var/log/mail/*： 记录邮件的往来信息，其实主要是记录 postfix （SMTP 协定提供者） 与 dovecot （POP3 协定提供者） 所产生的讯息啦。 SMTP 是发 信所使用的通讯协定， POP3 则是收信使用的通讯协定。 postfix 与 dovecot 则分别是两 套达成通讯协定的软件
+/var/log/messages： 这个文件相当的重要，几乎系统发生的错误讯息 （或者是重要的信 息） 都会记录在这个文件中； 如果系统发生莫名的错误时，这个文件是一定要查阅的登 录文件之一。
+/var/log/secure： 基本上，只要牵涉到“需要输入帐号密码”的软件，那么当登陆时 （不管 登陆正确或错误） 都会被记录在此文件中。 包括系统的 login 程序、图形接口登陆所使 用的 gdm 程序、 su, sudo 等程序、还有网络连线的 ssh, telnet 等程序， 登陆信息都会 被记载在这里；
+/var/log/wtmp, /var/log/faillog： 这两个文件可以记录正确登陆系统者的帐号信息 （wtmp） 与错误登陆时所使用的帐号信息 （faillog） ！
+/var/log/httpd/, /var/log/samba/： 不同的网络服务会使用它们自己的登录文件来记载它们 自己产生的各项讯息！上述的目录内则是个别服务所制订的登录文件。
 </code></pre>
 <p>配置文件：&#x2F;etc&#x2F;syslog.conf</p>
 <pre><code>配置文件定义格式为: facility.priority        action 
@@ -290,4 +301,96 @@ mail.*;mail.!=info            # 表示记录mail相关的所有级别的信息,�
 <blockquote>
 <p>centos 7 配置文件：rsyslog.conf</p>
 </blockquote>
-</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://example.com">QiYan</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2022/11/27/Linux-crond/">http://example.com/2022/11/27/Linux-crond/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com" target="_blank">知与行</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2022/11/27/Linux-shell/"><img class="next-cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Shell编程</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/avatar.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">QiYan</div><div class="author-info__description">学而不思则惘 思而不学则殆</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">12</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">16</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content"></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%BB%E5%8A%A1%E8%AE%A1%E5%88%92"><span class="toc-number">1.</span> <span class="toc-text">任务计划</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux%E4%B8%8A%E7%9A%84%E6%97%A5%E5%BF%97%E7%B3%BB%E7%BB%9F"><span class="toc-number">2.</span> <span class="toc-text">Linux上的日志系统</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#CentOS5-%E7%B3%BB%E7%BB%9F"><span class="toc-number">2.1.</span> <span class="toc-text">CentOS5 系统</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/11/27/Linux-crond/" title="Linux计划任务和日志">Linux计划任务和日志</a><time datetime="2022-11-27T14:18:13.863Z" title="发表于 2022-11-27 22:18:13">2022-11-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/11/27/Linux-shell/" title="Shell编程">Shell编程</a><time datetime="2022-11-27T14:05:00.135Z" title="发表于 2022-11-27 22:05:00">2022-11-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/11/27/Linux-program/" title="Linux进程管理">Linux进程管理</a><time datetime="2022-11-27T13:35:48.747Z" title="发表于 2022-11-27 21:35:48">2022-11-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/11/27/combute-basic/" title="计算机基础">计算机基础</a><time datetime="2022-11-27T13:25:06.024Z" title="发表于 2022-11-27 21:25:06">2022-11-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/11/27/Linux-network/" title="Linux网络基础">Linux网络基础</a><time datetime="2022-11-27T13:24:30.781Z" title="发表于 2022-11-27 21:24:30">2022-11-27</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By QiYan</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
+<p>日志轮替：</p>
+<pre><code>[root@study ~]# vim /etc/logrotate.conf 
+# 下面的设置是 &quot;logrotate 的默认设置值&quot; ，如果个别的文件设置了其他的参数， 
+# 则将以个别的文件设置为主，若该文件没有设置到的参数则以这个文件的内容为默认值！ 
+
+weekly &amp;lt;==默认每个礼拜对登录文件进行一次 rotate 的工作 rotate 4 &amp;lt;==保留几个登录文件呢？默认是保留四个！ 
+create &amp;lt;==由于登录文件被更名，因此创建一个新的来继续储存之意！ 
+dateext &amp;lt;==就是这个设置值！可以让被轮替的文件名称加上日期作为文件名喔！ 
+#compress &amp;lt;==被更动的登录文件是否需要压缩？如果登录文件太大则可考虑此参数启动 
+include /etc/logrotate.d # 将 /etc/logrotate.d/ 这个目录中的所有文件都读进来执行 rotate 的工作！ 
+
+/var/log/wtmp &#123; &amp;lt;==仅针对 /var/log/wtmp 所设置的参数 	monthly &amp;lt;==每个月一次，取代每周！ 
+    create 0664 root utmp &amp;lt;==指定新建文件的权限与所属帐号/群组 
+    minsize 1M &amp;lt;==文件大小一定要超过 1M 后才进行rotate （略过时间参数） 
+    rotate 1 &amp;lt;==仅保留一个，亦即仅有 wtmp.1 保留而已。 
+&#125;
+# 这个 wtmp 可记录登陆者与系统重新开机时的时间与来源主机及登陆期间的时间。 
+# 由于具有 minsize 的参数，因此不见得每个月一定会进行一次喔！要看文件大小。 
+# 由于仅保留一个登录文件而已，不满意的话可以将他改成 rotate 5 吧！
+
+[root@study ~]# logrotate [-vf] logfile 选项与参数： -v ：启动显示模式，会显示 logrotate 运行的过程喔！ -f ：不论是否符合配置文件的数据，强制每个登录文件都进行 rotate 的动作！
+</code></pre>
+<p>观察日志信息（centos7）</p>
+<pre><code>[root@study ~]# journalctl [-nrpf] [--since TIME] [--until TIME] _optional 
+
+选项与参数： 默认会输出全部的 log 内容，从旧的输出到最新的讯息 
+    -n ：秀出最近的几行的意思～找最新的信息相当有用 
+    -r ：反向输出，从最新的输出到最旧的数据 
+    -p ：根据后面所接的讯息重要性排序！
+    -f ：类似 tail -f 的功能，持续显示 journal 日志的内容（实时监测时相当有帮助！） 
+    --since --until：设置开始与结束的时间，让在该期间的数据输出而已 
+
+    _SYSTEMD_UNIT=unit.service ：只输出 unit.service 的信息而已 
+    _COMM=bash ：只输出与 bash 有关的信息 
+    _PID=pid ：只输出 PID 号码的信息 
+    _UID=uid ：只输出 UID 为 uid 的信息 
+    SYSLOG_FACILITY=[0-23] ：使用 syslog.h 规范的服务相对序号来调用出正确的数据！ 
+    
+    范例一：秀出目前系统中所有的 journal 日志数据 
+    [root@study ~]# journalctl 
+    -- Logs begin at Mon 2015-08-17 18:37:52 CST, end at Wed 2015-08-19 00:01:01 CST.-- 
+    Aug 17 18:37:52 study.centos.vbird systemd-journal[105]: Runtime journal is using 8.0M （max 142.4M, leaving 213.6M of free 1.3G, current limit 142.4M）. 
+    Aug 17 18:37:52 study.centos.vbird systemd-journal[105]: Runtime journal is using 8.0M （max 142.4M, leaving 213.6M of free 1.3G, current limit 142.4M）. 
+    Aug 17 18:37:52 study.centos.vbird kernel: Initializing cgroup subsys cpuset 
+    Aug 17 18:37:52 study.centos.vbird kernel: Initializing cgroup subsys cpu 
+    .....（中间省略）..... 
+    Aug 19 00:01:01 study.centos.vbird run-parts（/etc/cron.hourly）[19268]: finished 0anacron Aug 19 00:01:01 study.centos.vbird run-parts（/etc/cron.hourly）[19270]: starting 0yum-hourly.cron Aug 19 00:01:01 study.centos.vbird run-parts（/etc/cron.hourly）[19274]: finished 0yum-hourly.cron 
+    # 从这次开机以来的所有数据都会显示出来！通过 less 一页页翻动给管理员查阅！数据量相当大！ 
+
+
+    范例二：
+    （1）仅显示出 2015/08/18 整天以及
+    （2）仅今天及
+    （3）仅昨天的日志数据内容 
+    [root@study ~]# journalctl --since &quot;2015-08-18 00:00:00&quot; --until &quot;2015-08-19 00:00:00&quot; 
+    [root@study ~]# journalctl --since today 
+    [root@study ~]# journalctl --since yesterday --until today 
+
+    范例三：只找出 crond.service 的数据，同时只列出最新的 10 笔即可 
+    
+    [root@study ~]# journalctl _SYSTEMD_UNIT=crond.service -n 10 
+
+    范例四：找出 su, login 执行的登录文件，同时只列出最新的 10 笔即可 
+    
+    [root@study ~]# journalctl _COMM=su _COMM=login -n 10 
+
+    范例五：找出讯息严重等级为错误 （error） 的讯息！ 
+
+    [root@study ~]# journalctl -p err 
+
+    范例六：找出跟登录服务 （auth, authpriv） 有关的登录文件讯息 
+
+    [root@study ~]# journalctl SYSLOG_FACILITY=4 SYSLOG_FACILITY=10 # 更多关于 syslog_facility 的数据
+</code></pre>
+<p>手动发送日志</p>
+<pre><code>[root@study ~]# logger [-p 服务名称.等级] &quot;讯息&quot; 
+
+选项与参数： 服务名称.等级 ：
+
+范例一：指定一下，让 dmtsai 使用 logger 来传送数据到登录文件内 
+[root@study ~]# logger -p user.info &quot;I will check logger command&quot; 
+
+[root@study ~]# journalctl SYSLOG_FACILITY=1 -n 3 
+-- Logs begin at Mon 2015-08-17 18:37:52 CST, end at Wed 2015-08-19 18:03:17 CST. --
+Aug 19 18:01:01 study.centos.vbird run-parts（/etc/cron.hourly）[29710]: starting 0yum-hourly.cron 
+Aug 19 18:01:01 study.centos.vbird run-parts（/etc/cron.hourly）[29714]: finished 0yum-hourly.cron 
+Aug 19 18:03:17 study.centos.vbird dmtsai[29753]: I will check logger command
+</code></pre>
+<div class="note green icon-padding flat">
+<p>**参考内容**：</p> 
+<p>1. 鸟哥Linux私房菜-基础版</p> 
+</div>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://example.com">QiYan</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2022/11/27/Linux-crond/">http://example.com/2022/11/27/Linux-crond/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com" target="_blank">知与行</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/LOG/">LOG</a></div><div class="post_share"><div class="social-share" data-image="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2022/11/27/Linux-shell/"><img class="next-cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Shell编程</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/avatar.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">QiYan</div><div class="author-info__description">学而不思则惘 思而不学则殆</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">12</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">17</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content"></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%BB%E5%8A%A1%E8%AE%A1%E5%88%92"><span class="toc-number">1.</span> <span class="toc-text">任务计划</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux%E4%B8%8A%E7%9A%84%E6%97%A5%E5%BF%97%E7%B3%BB%E7%BB%9F"><span class="toc-number">2.</span> <span class="toc-text">Linux上的日志系统</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/11/27/Linux-crond/" title="Linux计划任务和日志">Linux计划任务和日志</a><time datetime="2022-11-28T02:39:38.213Z" title="发表于 2022-11-28 10:39:38">2022-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/11/27/Linux-shell/" title="Shell编程">Shell编程</a><time datetime="2022-11-27T14:05:00.135Z" title="发表于 2022-11-27 22:05:00">2022-11-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/11/27/Linux-program/" title="Linux进程管理">Linux进程管理</a><time datetime="2022-11-27T13:35:48.747Z" title="发表于 2022-11-27 21:35:48">2022-11-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/11/27/combute-basic/" title="计算机基础">计算机基础</a><time datetime="2022-11-27T13:25:06.024Z" title="发表于 2022-11-27 21:25:06">2022-11-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/11/27/Linux-network/" title="Linux网络基础">Linux网络基础</a><time datetime="2022-11-27T13:24:30.781Z" title="发表于 2022-11-27 21:24:30">2022-11-27</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By QiYan</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

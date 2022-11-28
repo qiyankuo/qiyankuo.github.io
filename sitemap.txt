@@ -16,6 +16,7 @@ http://example.com/2022/11/21/hello-world/
 http://example.com/
 http://example.com/tags/sed/
 http://example.com/tags/vi/
+http://example.com/tags/LOG/
 http://example.com/tags/network/
 http://example.com/tags/%E8%BF%9B%E7%A8%8B/
 http://example.com/tags/hexo/
