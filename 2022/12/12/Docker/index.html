@@ -1,0 +1,816 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>docker基础 | 知与行</title><meta name="author" content="QiYan"><meta name="copyright" content="QiYan"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="本文主要介绍容器化底层实现技术（chroot、namespace、cgroup）、docker安装和卸载、容器管理工具的相关内容。   Docker基础知识一提起容器化，大家首先想到的便是docker。docker是容器化技术的代表，但容器化技术并不是从docker开始诞生的。容器化技术最早可以追溯到chroot命令，chroot实现了将一个进程的文件系统进行隔离。docker最早是基于LXC技">
+<meta property="og:type" content="article">
+<meta property="og:title" content="docker基础">
+<meta property="og:url" content="http://example.com/2022/12/12/Docker/index.html">
+<meta property="og:site_name" content="知与行">
+<meta property="og:description" content="本文主要介绍容器化底层实现技术（chroot、namespace、cgroup）、docker安装和卸载、容器管理工具的相关内容。   Docker基础知识一提起容器化，大家首先想到的便是docker。docker是容器化技术的代表，但容器化技术并不是从docker开始诞生的。容器化技术最早可以追溯到chroot命令，chroot实现了将一个进程的文件系统进行隔离。docker最早是基于LXC技">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-12-12T14:25:21.471Z">
+<meta property="article:modified_time" content="2022-12-12T14:25:21.469Z">
+<meta property="article:author" content="QiYan">
+<meta property="article:tag" content="docker">
+<meta name="twitter:card" content="summary"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2022/12/12/Docker/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'docker基础',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-12-12 22:25:21'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/font.css"><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="知与行" type="application/atom+xml">
+</head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/avatar.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">16</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">20</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">6</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">知与行</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">docker基础</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-12-12T14:25:21.471Z" title="发表于 2022-12-12 22:25:21">2022-12-12</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-12-12T14:25:21.469Z" title="更新于 2022-12-12 22:25:21">2022-12-12</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/">云原生</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">8k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>36分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="docker基础"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><div class="note blue icon-padding flat">
+<p>本文主要介绍容器化底层实现技术（chroot、namespace、cgroup）、docker安装和卸载、容器管理工具的相关内容。</p>
+</div>
+
+<h2 id="Docker基础知识"><a href="#Docker基础知识" class="headerlink" title="Docker基础知识"></a>Docker基础知识</h2><p>一提起容器化，大家首先想到的便是docker。docker是容器化技术的代表，但容器化技术并不是从docker开始诞生的。容器化技术最早可以追溯到chroot命令，chroot实现了将一个进程的文件系统进行隔离。docker最早是基于LXC技术的一系列封装。LXC是Linux原生支持的容器技术，可以提供轻量级的虚拟化。后来docker改为了自己研发并开源的runc技术运行容器。</p>
+<p>docker采用的是C&#x2F;S架构，使用远程API来管理和构建容器，并通过namespace和cgroup来实现容器的资源隔离与安全保障等。docker的三大理念为build（构建）、ship（运输）、run（运行）。docker和java很相似。它们都追求一次编译、到处运行。</p>
+<p>docker的组成：</p>
+<p><img src="http://www.yunweipai.com/wp-content/uploads/2020/06/JX2M8NLVEKMRH_RY5ZMG-780x393.png" alt="image"></p>
+<ul>
+<li>Docker主机：一个物理机或虚拟机，用于运行Docker服务进程和容器，也称为宿主机，node节点</li>
+<li>Docker仓库：保存镜像的仓库，官方仓库: <a target="_blank" rel="noopener" href="https://hub.docker.com/">https://hub.docker.com/</a> 。也可以搭建私有仓库harbor</li>
+<li>Docker镜像：镜像可以理解为创建实例使用的模板</li>
+<li>Docker容器：容器是从镜像生成对外提供服务的一个或一组服务</li>
+<li>Docker服务端：Docker守护进程，运行docker容器</li>
+<li>Docker客户端：客户端使用docker 命令或其他工具调用docker API</li>
+</ul>
+<p>容器和虚拟机比较：</p>
+<p><img src="http://www.yunweipai.com/wp-content/uploads/2020/06/image-20200225140931257-780x297.png" alt="image"><br>优点：</p>
+<ul>
+<li>资源利用率更高：一台物理机可以运行数百个容器，但是一般只能运行数十个虚拟机</li>
+<li>开销更小：不需要启动单独的虚拟机OS内核占用硬件资源</li>
+<li>启动速度更快：可以在数秒内完成启动</li>
+<li>集成性更好：和CI&#x2F;CD（持续集成&#x2F;持续部署）相关技术结合性更好，实现自动化管理</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>多个容器共用宿主机的内核，各应用之间的隔离不如虚拟机彻底</li>
+</ul>
+<h2 id="Docker安装与卸载"><a href="#Docker安装与卸载" class="headerlink" title="Docker安装与卸载"></a>Docker安装与卸载</h2><h3 id="操作系统选择"><a href="#操作系统选择" class="headerlink" title="操作系统选择"></a>操作系统选择</h3><p>Docker 目前已经支持多种操作系统的安装运行，比如Ubuntu、CentOS、Redhat、Debian、Fedora，甚至是还支持了Mac和Windows，在linux系统上需要内核版本在3.10或以上。</p>
+<h3 id="Docker版本选择"><a href="#Docker版本选择" class="headerlink" title="Docker版本选择"></a>Docker版本选择</h3><p>docker版本号之前一直是0.X版本或1.X版本，但是从2017年3月1号开始改为每个季度发布一次稳版，其版本号规则也统一变更为YY.MM，例如17.09表示是2017年9月份发布的。</p>
+<p>Docker之前没有区分版本，但是2017年推出(将docker更名为)新的项目Moby，github地址：<a target="_blank" rel="noopener" href="https://github.com/moby/moby%EF%BC%8C">https://github.com/moby/moby，</a> Moby项目属于Docker项目的全新上游，Docker将是一个隶属于的Moby的子产品，而且之后的版本之后开始区分为 CE（Docker Community Edition，社区版本）和 EE（Docker Enterprise Edition，企业收费版），CE社区版本和EE企业版本都是每个季度发布一个新版本，但是EE版本提供后期安全维护1年，而CE版本是4个月。</p>
+<p>如果要布署到kubernets上，需要查看相关kubernets对docker版本要求的说明，比如<a target="_blank" rel="noopener" href="https://github.com/kubernetes/kubernetes/blob/v1.17.2/CHANGELOG-1.17.md">https://github.com/kubernetes/kubernetes/blob/v1.17.2/CHANGELOG-1.17.md</a></p>
+<h3 id="CentOS安装docker"><a href="#CentOS安装docker" class="headerlink" title="CentOS安装docker"></a>CentOS安装docker</h3><p>CentOS 6 因内核太旧，即使支持安装docker，但会有各种问题，不建议安装<br>CentOS 7 的 extras 源虽然可以安装docker，但包比较旧，建议从官方源或镜像源站点下载安装docker<br>CentOS 8 有新技术 podman 代替 docker<br>因此建议在CentOS 7 上安装 docker</p>
+<h4 id="rpm包安装："><a href="#rpm包安装：" class="headerlink" title="rpm包安装："></a>rpm包安装：</h4><p>官方rpm包下载地址:</p>
+<p><a target="_blank" rel="noopener" href="https://download.docker.com/linux/centos/7/x86_64/stable/Packages/">https://download.docker.com/linux/centos/7/x86_64&#x2F;stable&#x2F;Packages&#x2F;</a></p>
+<p>阿里镜像下载地址：</p>
+<p><a target="_blank" rel="noopener" href="https://mirrors.aliyun.com/docker-ce/linux/centos/7/x86_64/stable/Packages/">https://mirrors.aliyun.com/docker-ce/linux/centos/7/x86_64&#x2F;stable&#x2F;Packages&#x2F;</a></p>
+<h4 id="yum源安装"><a href="#yum源安装" class="headerlink" title="yum源安装"></a>yum源安装</h4><p>安装所需的软件包。yum-utils 提供了 yum-config-manager </p>
+<pre><code>yum install -y yum-utils 
+</code></pre>
+<p>添加阿里软件源信息</p>
+<pre><code>yum-config-manager --add-repo https://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
+
+# 前两步可以使用如下命令替换
+wget -O /etc/yum.repos.d/docker-ce.repo https://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
+</code></pre>
+<p>更新yum源并安装docker-ce</p>
+<pre><code>yum makecache fast
+yum -y install docker-ce
+</code></pre>
+<p>没有指定版本默认安装的是docker最新版本，如果需要安装指定版本可以参考如下操做</p>
+<pre><code>查找Docker-CE的版本:
+
+[root@localhost yum.repos.d]# yum list docker-ce --showduplicates | sort -r
+ * updates: mirrors.tuna.tsinghua.edu.cn
+Loading mirror speeds from cached hostfile
+Loaded plugins: fastestmirror, langpacks
+ * extras: mirrors.tuna.tsinghua.edu.cn
+docker-ce.x86_64            3:20.10.9-3.el7                     docker-ce-stable
+docker-ce.x86_64            3:20.10.8-3.el7                     docker-ce-stable
+docker-ce.x86_64            3:20.10.7-3.el7                     docker-ce-stable
+docker-ce.x86_64            3:20.10.6-3.el7                     docker-ce-stable
+docker-ce.x86_64            3:20.10.5-3.el7                     docker-ce-stable
+docker-ce.x86_64            3:20.10.4-3.el7                     docker-ce-stable
+docker-ce.x86_64            3:20.10.3-3.el7                     docker-ce-stable
+docker-ce.x86_64            3:20.10.2-3.el7                     docker-ce-stable
+docker-ce.x86_64            3:20.10.21-3.el7                    docker-ce-stable
+
+安装指定版本的Docker-CE
+
+yum -y install docker-ce-3:20.10.9-3.el7   
+</code></pre>
+<p>开启docker服务</p>
+<pre><code>systemctl enable --now docker
+</code></pre>
+<p>镜像加速，在&#x2F;etc&#x2F;docker&#x2F;daemon.json文件中添加以下内容</p>
+<pre><code>&#123;&quot;registry-mirrors&quot;:[&quot;https://reg-mirror.qiniu.com/&quot;]&#125; 
+
+参考：https://www.runoob.com/docker/docker-mirror-acceleration.html
+</code></pre>
+<p>检查配置是否生效：</p>
+<pre><code>$ docker info
+Registry Mirrors:
+    https://reg-mirror.qiniu.com
+</code></pre>
+<h4 id="一键安装脚本"><a href="#一键安装脚本" class="headerlink" title="一键安装脚本"></a>一键安装脚本</h4><pre><code>[root@centos7 ~]#cat install_docker_for_centos7.sh 
+#!/bin/bash
+#
+#********************************************************************
+#Author:        wangxiaochun
+#QQ:            29308620
+#Date:          2020-01-26
+#FileName：      install_docker_for_centos7.sh
+#URL:           http://www.magedu.com
+#Description：       The test script
+#Copyright (C):     2020 All rights reserved
+#********************************************************************
+COLOR=&quot;echo -e \\033[1;31m&quot;
+END=&quot;\033[m&quot;
+VERSION=&quot;19.03.5-3.el7&quot;
+wget -P /etc/yum.repos.d/ https://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo  || &#123; $&#123;COLOR&#125;&quot;互联网连接失败，请检查网络配置!&quot;$&#123;END&#125;;exit; &#125;
+yum clean all 
+yum -y install docker-ce-$VERSION docker-ce-cli-$VERSION || &#123; $&#123;COLOR&#125;&quot;Base,Extras的yum源失败,请检查yum源配置&quot;$&#123;END&#125;;exit; &#125;
+</code></pre>
+<h4 id="二进制安装"><a href="#二进制安装" class="headerlink" title="二进制安装"></a>二进制安装</h4><p>二进制安装下载路径<br><a target="_blank" rel="noopener" href="https://download.docker.com/linux/">https://download.docker.com/linux/</a></p>
+<p><a target="_blank" rel="noopener" href="https://mirrors.aliyun.com/docker-ce/linux/static/stable/x86_64/">https://mirrors.aliyun.com/docker-ce/linux/static/stable/x86_64&#x2F;</a></p>
+<p>下载包并安装</p>
+<pre><code>[root@centos8 ~]#wget https://download.docker.com/linux/static/stable/x86_64/docker-19.03.5.tgz
+--2020-01-24 18:02:55--  https://download.docker.com/linux/static/stable/x86_64/docker-19.03.5.tgz
+Resolving download.docker.com (download.docker.com)... 143.204.83.37, 143.204.83.32, 143.204.83.95, ...
+Connecting to download.docker.com (download.docker.com)|143.204.83.37|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 63252595 (60M) [application/x-tar]
+Saving to: ‘docker-19.03.5.tgz’
+
+docker-19.03.5.tgz          100%[=========================================&gt;]  60.32M  11.3MB/s    in 5.6s    
+
+2020-01-24 18:03:02 (10.7 MB/s) - ‘docker-19.03.5.tgz’ saved [63252595/63252595]
+
+[root@centos8 ~]#tar xvf docker-19.03.5.tgz 
+docker/
+docker/docker-init
+docker/docker
+docker/dockerd
+docker/runc
+docker/ctr
+docker/docker-proxy
+docker/containerd
+docker/containerd-shim
+
+[root@centos8 ~]#cp docker/* /usr/bin/
+[root@centos8 ~]#groupadd -r docker
+</code></pre>
+<p>将Ubuntu1804或CentOS7基于包方式安装的相关文件复制到相应目录下</p>
+<pre><code>[root@ubuntu1804 ~]#scp /lib/systemd/system/docker.* /lib/systemd/system/containerd.service  10.0.0.8:/lib/systemd/system/
+The authenticity of host &#39;10.0.0.8 (10.0.0.8)&#39; can&#39;t be established.
+ECDSA key fingerprint is SHA256:8mUO3Wy13Ktt5pRBKaOU40avmw1x0gH5XTPK48CEWoM.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added &#39;10.0.0.8&#39; (ECDSA) to the list of known hosts.
+root@10.0.0.8&#39;s password: 
+docker.service                                             100% 1683   650.8KB/s   00:00  docker.socket                                              100%  197   303.3KB/s   00:00 
+containerd.service                                         100%  487   516.6KB/s   00:00 
+
+[root@centos8 ~]#systemctl daemon-reload
+[root@centos8 ~]#systemctl enable --now docker
+
+[root@centos8 ~]#docker version
+Client: Docker Engine - Community
+ Version:           19.03.5
+ API version:       1.40
+ Go version:        go1.12.12
+ Git commit:        633a0ea838
+ Built:             Wed Nov 13 07:22:05 2019
+ OS/Arch:           linux/amd64
+ Experimental:      false
+
+Server: Docker Engine - Community
+ Engine:
+  Version:          19.03.5
+  API version:      1.40 (minimum version 1.12)
+  Go version:       go1.12.12
+  Git commit:       633a0ea838
+  Built:            Wed Nov 13 07:28:45 2019
+  OS/Arch:          linux/amd64
+  Experimental:     false
+ containerd:
+  Version:          v1.2.10
+  GitCommit:        b34a5c8af56e510852c35414db4c1f4fa6172339
+ runc:
+  Version:          1.0.0-rc8+dev
+  GitCommit:        3e425f80a8c931f88e6d94a8c831b9d5aa481657
+ docker-init:
+  Version:          0.18.0
+  GitCommit:        fec3683
+</code></pre>
+<p>测试：</p>
+<pre><code>[root@centos8 ~]#docker run hello-world
+Unable to find image &#39;hello-world:latest&#39; locally
+latest: Pulling from library/hello-world
+1b930d010525: Pull complete 
+Digest: sha256:9572f7cdcee8591948c2963463447a53466950b3fc15a247fcad1917ca215a2f
+Status: Downloaded newer image for hello-world:latest
+
+Hello from Docker!
+This message shows that your installation appears to be working correctly.
+
+To generate this message, Docker took the following steps:
+ 1. The Docker client contacted the Docker daemon.
+ 2. The Docker daemon pulled the &quot;hello-world&quot; image from the Docker Hub.
+    (amd64)
+ 3. The Docker daemon created a new container from that image which runs the
+    executable that produces the output you are currently reading.
+ 4. The Docker daemon streamed that output to the Docker client, which sent it
+    to your terminal.
+
+To try something more ambitious, you can run an Ubuntu container with:
+ $ docker run -it ubuntu bash
+
+Share images, automate workflows, and more with a free Docker ID:
+ https://hub.docker.com/
+
+For more examples and ideas, visit:
+ https://docs.docker.com/get-started/
+</code></pre>
+<h4 id="CentOS8安装docker"><a href="#CentOS8安装docker" class="headerlink" title="CentOS8安装docker"></a>CentOS8安装docker</h4><p>在CentOS8上安装docker会自动安装podman。docker工具只是一个脚本，调用了Podman</p>
+<pre><code>[root@centos8 ~]#dnf install docker
+
+[root@centos8 ~]#rpm -ql podman-docker
+/usr/bin/docker
+
+[root@centos8 ~]#cat /usr/bin/docker
+#!/bin/sh
+[ -f /etc/containers/nodocker ] || \
+echo &quot;Emulate Docker CLI using podman. Create /etc/containers/nodocker to quiet msg.&quot; &gt;&amp;2
+exec /usr/bin/podman &quot;$@&quot;
+
+[root@centos8 ~]#podman version
+Version:            1.4.2-stable2
+RemoteAPI Version:  1
+Go Version:         go1.12.8
+OS/Arch:            linux/amd64
+</code></pre>
+<p>修改拉取镜像地址的顺序，提高速度</p>
+<pre><code>[root@centos8 ~]#vim /etc/containers/registries.conf
+[registries.search]
+registries = [&#39;docker.io&#39;，&#39;quay.io&#39;，&#39;registry.redhat.io&#39;, &#39;registry.access.redhat.com&#39;]   
+</code></pre>
+<h3 id="docker卸载"><a href="#docker卸载" class="headerlink" title="docker卸载"></a>docker卸载</h3><p>删除安装包：</p>
+<pre><code>yum remove docker-ce
+</code></pre>
+<p>删除镜像、容器、配置文件等内容：</p>
+<pre><code>rm -rf /var/lib/docker
+</code></pre>
+<h2 id="namespace"><a href="#namespace" class="headerlink" title="namespace"></a>namespace</h2><h3 id="基础"><a href="#基础" class="headerlink" title="基础"></a>基础</h3><p>各个docker容器运行在同一个docker主进程并且共用同一个宿主机的内核。因此docker的隔离性必然需要解决如下问题：</p>
+<ul>
+<li><p>怎么样保证每个容器都有不同的文件系统并且能互不影响？</p>
+</li>
+<li><p>一个docker主进程内的各个容器都是其子进程，如何实现允许一个容器内的不同进程的 (内存、缓存等)数据访问，但是不能跨容器直接访问其他容器的数据？</p>
+</li>
+<li><p>每个容器怎么解决IP及端口分配的问题？</p>
+</li>
+<li><p>多个容器的主机名能一样吗？</p>
+</li>
+<li><p>每个容器都要不要有root用户？怎么解决账户重名问题？</p>
+</li>
+</ul>
+<p>以上问题的解决便用到namespace技术，namespace技术可以参考如下链接：<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/d4VHKyGiCIHwrau74B4tPw">https://mp.weixin.qq.com/s/d4VHKyGiCIHwrau74B4tPw</a></p>
+<h3 id="准备"><a href="#准备" class="headerlink" title="准备"></a>准备</h3><p>启动三个容器用于以下验证过程：</p>
+<pre><code># 拉取镜像
+docker pull nginx
+
+# 启动容器
+docker run  -d --name nginx-1 -p 80:80 nginx
+docker run  -d --name nginx-2 -p 81:80 nginx
+docker run  -d --name nginx-3 -p 82:80 nginx
+
+# 查看
+[root@localhost overlay2]# docker ps
+CONTAINER ID   IMAGE     COMMAND                  CREATED          STATUS          PORTS                               NAMES
+349dc29cf8aa   nginx     &quot;/docker-entrypoint.…&quot;   6 seconds ago    Up 5 seconds    0.0.0.0:82-&gt;80/tcp, :::82-&gt;80/tcp   nginx-3
+e324641b9c3e   nginx     &quot;/docker-entrypoint.…&quot;   12 seconds ago   Up 11 seconds   0.0.0.0:81-&gt;80/tcp, :::81-&gt;80/tcp   nginx-2
+3d811f1b783f   nginx     &quot;/docker-entrypoint.…&quot;   23 seconds ago   Up 21 seconds   0.0.0.0:80-&gt;80/tcp, :::80-&gt;80/tcp   nginx-1
+</code></pre>
+<h3 id="chroot"><a href="#chroot" class="headerlink" title="chroot"></a>chroot</h3><p>docker使用chroot技术使每个容器都有自己的独立根文件系统以实现文件系统的隔离。</p>
+<p>查看容器ID</p>
+<pre><code>/var/lib/containerd/io.containerd.runtime.v2.task/moby
+
+[root@localhost moby]# ll
+total 0
+drwx--x--x. 2 root root 6 Dec 12 04:51 349dc29cf8aacab7f7f1ff651f887698dc3a419417834d2eb3570032505058c1
+drwx--x--x. 2 root root 6 Dec 12 04:51 3d811f1b783fd3bee14cc9d10dea74934530813cc3d65b7f58156e9b542e070d
+drwx--x--x. 2 root root 6 Dec 12 04:51 e324641b9c3e722332b9cdbd8f8aeffc0f04aaf0421fef0b0699bb1e261d79e2
+</code></pre>
+<p>查看容器对应的根文件系统位置</p>
+<pre><code>[root@localhost moby]# docker inspect --format=&#39;&#123;&#123;.GraphDriver.Data.MergedDir&#125;&#125;&#39; 349dc29cf8aacab7f7f1ff651f887698dc3a419417834d2eb3570032505058c1
+/var/lib/docker/overlay2/f2e2bb3381063e69c20a5164887390e5eb6cd57fed28755f7c520204d4c4e093/merged
+
+[root@localhost moby]# cd /var/lib/docker/overlay2/f2e2bb3381063e69c20a5164887390e5eb6cd57fed28755f7c520204d4c4e093/merged
+</code></pre>
+<p>进入根文件系统目录查看</p>
+<pre><code>[root@localhost merged]# ll
+total 12
+drwxr-xr-x. 2 root root 4096 Dec  4 19:00 bin
+drwxr-xr-x. 2 root root    6 Sep  3 08:10 boot
+drwxr-xr-x. 1 root root   43 Dec 12 04:51 dev
+drwxr-xr-x. 1 root root   41 Dec  5 23:46 docker-entrypoint.d
+-rwxrwxr-x. 1 root root 1616 Dec  5 23:46 docker-entrypoint.sh
+drwxr-xr-x. 1 root root   19 Dec 12 04:51 etc
+drwxr-xr-x. 2 root root    6 Sep  3 08:10 home
+drwxr-xr-x. 1 root root   45 Dec  4 19:00 lib
+drwxr-xr-x. 2 root root   34 Dec  4 19:00 lib64
+drwxr-xr-x. 2 root root    6 Dec  4 19:00 media
+drwxr-xr-x. 2 root root    6 Dec  4 19:00 mnt
+drwxr-xr-x. 2 root root    6 Dec  4 19:00 opt
+drwxr-xr-x. 2 root root    6 Sep  3 08:10 proc
+drwx------. 2 root root   37 Dec  4 19:00 root
+drwxr-xr-x. 1 root root   23 Dec 12 04:51 run
+drwxr-xr-x. 2 root root 4096 Dec  4 19:00 sbin
+drwxr-xr-x. 2 root root    6 Dec  4 19:00 srv
+drwxr-xr-x. 2 root root    6 Sep  3 08:10 sys
+drwxrwxrwt. 1 root root    6 Dec  5 23:46 tmp
+drwxr-xr-x. 1 root root   66 Dec  4 19:00 usr
+drwxr-xr-x. 1 root root   19 Dec  4 19:00 var
+</code></pre>
+<p>验证：</p>
+<pre><code>[root@localhost merged]# docker exec nginx-3 ls -l
+total 12
+drwxr-xr-x.   2 root root 4096 Dec  5 00:00 bin
+drwxr-xr-x.   2 root root    6 Sep  3 12:10 boot
+drwxr-xr-x.   5 root root  340 Dec 12 09:51 dev
+drwxr-xr-x.   1 root root   41 Dec  6 04:46 docker-entrypoint.d
+-rwxrwxr-x.   1 root root 1616 Dec  6 04:46 docker-entrypoint.sh
+drwxr-xr-x.   1 root root   19 Dec 12 09:51 etc
+drwxr-xr-x.   2 root root    6 Sep  3 12:10 home
+drwxr-xr-x.   1 root root   45 Dec  5 00:00 lib
+drwxr-xr-x.   2 root root   34 Dec  5 00:00 lib64
+drwxr-xr-x.   2 root root    6 Dec  5 00:00 media
+drwxr-xr-x.   2 root root    6 Dec  5 00:00 mnt
+drwxr-xr-x.   2 root root    6 Dec  5 00:00 opt
+dr-xr-xr-x. 240 root root    0 Dec 12 09:51 proc
+drwx------.   2 root root   37 Dec  5 00:00 root
+drwxr-xr-x.   1 root root   23 Dec 12 09:51 run
+drwxr-xr-x.   2 root root 4096 Dec  5 00:00 sbin
+drwxr-xr-x.   2 root root    6 Dec  5 00:00 srv
+dr-xr-xr-x.  13 root root    0 Dec 12 07:47 sys
+drwxrwxrwt.   1 root root    6 Dec  6 04:46 tmp
+drwxr-xr-x.   1 root root   66 Dec  5 00:00 usr
+drwxr-xr-x.   1 root root   19 Dec  5 00:00 var
+</code></pre>
+<blockquote>
+<p>MNT namespace 实现磁盘挂载点的隔离<br>IPC namespace 实现允许一个容器内的不同进程的(内存、缓存等)数据访问，但是不能跨容器直接访问其他容器的数据。</p>
+</blockquote>
+<h3 id="UTS-namespace"><a href="#UTS-namespace" class="headerlink" title="UTS namespace"></a>UTS namespace</h3><p>UTS namespace（UNIX Timesharing System包含了运行内核的名称、版本、底层体系结构类型等信息）用于系统标识，其中包含了主机名hostname 和域名domainname 。它使得一个容器拥有属于自己hostname标识，这个主机名标识独立于宿主机系统和其上的其他容器。</p>
+<pre><code>[root@localhost merged]# docker ps -a
+CONTAINER ID   IMAGE     COMMAND                  CREATED          STATUS          PORTS                               NAMES
+349dc29cf8aa   nginx     &quot;/docker-entrypoint.…&quot;   38 minutes ago   Up 38 minutes   0.0.0.0:82-&gt;80/tcp, :::82-&gt;80/tcp   nginx-3
+e324641b9c3e   nginx     &quot;/docker-entrypoint.…&quot;   39 minutes ago   Up 38 minutes   0.0.0.0:81-&gt;80/tcp, :::81-&gt;80/tcp   nginx-2
+3d811f1b783f   nginx     &quot;/docker-entrypoint.…&quot;   39 minutes ago   Up 39 minutes   0.0.0.0:80-&gt;80/tcp, :::80-&gt;80/tcp   nginx-1
+
+[root@localhost merged]# docker exec -it 34 sh
+
+# hostname
+349dc29cf8aa
+
+# cat /etc/hosts
+127.0.0.1	localhost
+::1	localhost ip6-localhost ip6-loopback
+fe00::0	ip6-localnet
+ff00::0	ip6-mcastprefix
+ff02::1	ip6-allnodes
+ff02::2	ip6-allrouters
+172.17.0.4	349dc29cf8aa
+
+# uname -r
+3.10.0-1062.el7.x86_64
+
+# lscpu
+Architecture:                    x86_64
+CPU op-mode(s):                  32-bit, 64-bit
+Byte Order:                      Little Endian
+Address sizes:                   42 bits physical, 48 bits virtual
+CPU(s):                          1
+On-line CPU(s) list:             0
+Thread(s) per core:              1
+Core(s) per socket:              1
+Socket(s):                       1
+NUMA node(s):                    1
+Vendor ID:                       GenuineIntel
+CPU family:                      6
+Model:                           141
+Model name:                      11th Gen Intel(R) Core(TM) i5-11400H @ 2.70GHz
+Stepping:                        1
+CPU MHz:                         2688.002
+BogoMIPS:                        5376.00
+Hypervisor vendor:               VMware
+Virtualization type:             full
+L1d cache:                       48 KiB
+L1i cache:                       32 KiB
+L2 cache:                        1.3 MiB
+L3 cache:                        12 MiB
+NUMA node0 CPU(s):               0
+Vulnerability L1tf:              Not affected
+Vulnerability Mds:               Not affected
+Vulnerability Meltdown:          Not affected
+Vulnerability Spec store bypass: Mitigation; Speculative Store Bypass disabled via prct
+                                 l and seccomp
+Vulnerability Spectre v1:        Mitigation; Load fences, __user pointer sanitization
+Vulnerability Spectre v2:        Mitigation; Enhanced IBRS, IBPB
+Flags:                           fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge m
+                                 ca cmov pat pse36 clflush mmx fxsr sse sse2 ss syscall
+                                  nx pdpe1gb rdtscp lm constant_tsc arch_perfmon nopl x
+                                 topology tsc_reliable nonstop_tsc eagerfpu pni pclmulq
+                                 dq ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popc
+                                 nt tsc_deadline_timer aes xsave avx f16c rdrand hyperv
+                                 isor lahf_lm abm 3dnowprefetch ssbd ibrs ibpb stibp ib
+                                 rs_enhanced fsgsbase tsc_adjust bmi1 avx2 smep bmi2 in
+                                 vpcid rdseed adx smap xsaveopt arat md_clear spec_ctrl
+                                  intel_stibp flush_l1d arch_capabilities
+</code></pre>
+<h3 id="PID-namespace"><a href="#PID-namespace" class="headerlink" title="PID namespace"></a>PID namespace</h3><p>在Linux中，有一个PID为1的进程为其它所有进程的父进程。同理，在每个容器中也要有一个父进程，而容器之间进程的隔离采用PID namespace技术。</p>
+<p>debian 系统安装基础命令</p>
+<pre><code>apt update
+apt install procps (top命令)
+apt install iputils-ping (ping命令)
+apt install net-tools (网络工具)
+</code></pre>
+<p>查看容器内进程：</p>
+<pre><code>[root@localhost merged]# docker exec -it 34 sh
+
+ps aux  #我们可以看到容器中id为1的进程为nginx
+
+USER        PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root          1  0.0  0.0   8916   744 ?        Ss   09:51   0:00 nginx: master process
+nginx        29  0.0  0.1   9304  1092 ?        S    09:51   0:00 nginx: worker process
+root         76  0.0  0.0   2468   628 pts/0    Rs   10:42   0:00 sh
+root        424  0.0  0.1   6744  1504 pts/0    R+   10:47   0:00 ps aux
+</code></pre>
+<p>宿主机的PID究竟与容器内的PID是什么关系？</p>
+<pre><code># 查看和docker相关的进程
+[root@localhost merged]# ps -ef|grep docker
+root       4284      1  0 04:02 ?        00:00:03 /usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock
+root      57875   4284  0 04:51 ?        00:00:00 /usr/bin/docker-proxy -proto tcp -host-ip 0.0.0.0 -host-port 80 -container-ip 172.17.0.2 -container-port 80
+root      57879   4284  0 04:51 ?        00:00:00 /usr/bin/docker-proxy -proto tcp -host-ip :: -host-port 80 -container-ip 172.17.0.2 -container-port 80
+root      57990   4284  0 04:51 ?        00:00:00 /usr/bin/docker-proxy -proto tcp -host-ip 0.0.0.0 -host-port 81 -container-ip 172.17.0.3 -container-port 80
+root      57994   4284  0 04:51 ?        00:00:00 /usr/bin/docker-proxy -proto tcp -host-ip :: -host-port 81 -container-ip 172.17.0.3 -container-port 80
+root      58097   4284  0 04:51 ?        00:00:00 /usr/bin/docker-proxy -proto tcp -host-ip 0.0.0.0 -host-port 82 -container-ip 172.17.0.4 -container-port 80
+root      58101   4284  0 04:51 ?        00:00:00 /usr/bin/docker-proxy -proto tcp -host-ip :: -host-port 82 -container-ip 172.17.0.4 -container-port 80
+root      60530   2538  0 05:53 pts/0    00:00:00 grep --color=auto docker
+
+# 查看和containerd相关的进程
+[root@localhost merged]# ps -ef|grep containerd
+root       3947      1  0 03:56 ?        00:00:03 /usr/bin/containerd
+root      57891      1  0 04:51 ?        00:00:03 /usr/bin/containerd-shim-runc-v2 -namespace moby -id 3d811f1b783fd3bee14cc9d10dea74934530813cc3d65b7f58156e9b542e070d -address /run/containerd/containerd.sock
+root      58006      1  0 04:51 ?        00:00:03 /usr/bin/containerd-shim-runc-v2 -namespace moby -id e324641b9c3e722332b9cdbd8f8aeffc0f04aaf0421fef0b0699bb1e261d79e2 -address /run/containerd/containerd.sock
+root      58113      1  0 04:51 ?        00:00:04 /usr/bin/containerd-shim-runc-v2 -namespace moby -id 349dc29cf8aacab7f7f1ff651f887698dc3a419417834d2eb3570032505058c1 -address /run/containerd/containerd.sock
+root      60730   2538  0 06:07 pts/0    00:00:00 grep --color=auto containerd
+
+# 查看某个containerd-shim-runc-v2相关的进程
+[root@localhost merged]# ps -ef|grep 57891
+root      57891      1  0 04:51 ?        00:00:04 /usr/bin/containerd-shim-runc-v2 -namespace moby -id 3d811f1b783fd3bee14cc9d10dea74934530813cc3d65b7f58156e9b542e070d -address /run/containerd/containerd.sock
+root      57911  57891  0 04:51 ?        00:00:00 nginx: master process nginx -g daemon off;
+root      60748   2538  0 06:08 pts/0    00:00:00 grep --color=auto 57891
+</code></pre>
+<h3 id="NET-Namespace"><a href="#NET-Namespace" class="headerlink" title="NET Namespace"></a>NET Namespace</h3><p>docker使用NET Namespace实现网络隔离，在每个network space内部都类似于虚拟机一样有自己的网卡、监听端口、TCP&#x2F;IP协议栈等。</p>
+<p><img src="http://www.yunweipai.com/wp-content/uploads/2020/06/image-20200122202720294.png" alt="image"></p>
+<p>docker0实质就是Linux的虚拟网桥,网桥是OSI七层模型的数据链路层的网络设备。</p>
+<p>通过brctl show命令查看宿主机上桥接设备：</p>
+<pre><code>[root@localhost merged]# brctl show
+bridge name	bridge id		STP enabled	interfaces
+docker0		8000.02424bbbf88b	no		veth4aa8bbb
+                                        veth4ff4cb3
+                                        veth67f8efa
+virbr0		8000.525400a46c62	yes		virbr0-nic
+</code></pre>
+<p>通过ifconfig查看宿主机网卡IP</p>
+<pre><code>veth4aa8bbb: flags=4163&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu 1500
+        inet6 fe80::fc6b:38ff:feda:614b  prefixlen 64  scopeid 0x20&lt;link&gt;
+        ether fe:6b:38:da:61:4b  txqueuelen 0  (Ethernet)
+        RX packets 4118  bytes 285929 (279.2 KiB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 4388  bytes 9949505 (9.4 MiB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+veth4ff4cb3: flags=4163&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu 1500
+        inet6 fe80::6423:62ff:fed5:21c5  prefixlen 64  scopeid 0x20&lt;link&gt;
+        ether 66:23:62:d5:21:c5  txqueuelen 0  (Ethernet)
+        RX packets 0  bytes 0 (0.0 B)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 11  bytes 860 (860.0 B)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+veth67f8efa: flags=4163&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu 1500
+        inet6 fe80::c32:16ff:fec5:2127  prefixlen 64  scopeid 0x20&lt;link&gt;
+        ether 0e:32:16:c5:21:27  txqueuelen 0  (Ethernet)
+        RX packets 0  bytes 0 (0.0 B)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 24  bytes 2628 (2.5 KiB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+</code></pre>
+<p>通过ifconfig查看容器网卡IP</p>
+<pre><code>eth0: flags=4163&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu 1500
+        inet 172.17.0.4  netmask 255.255.0.0  broadcast 172.17.255.255
+        ether 02:42:ac:11:00:04  txqueuelen 0  (Ethernet)
+        RX packets 4586  bytes 10337173 (9.8 MiB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 4317  bytes 300918 (293.8 KiB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+</code></pre>
+<h3 id="User-Namespace"><a href="#User-Namespace" class="headerlink" title="User Namespace"></a>User Namespace</h3><p>各个容器内可能会出现重名的用户和用户组名称，或重复的用户UID或者GID，那么怎么隔离各个容器内的用户空间呢？<br>User Namespace允许在各个宿主机的各个容器空间内创建相同的用户名以及相同的用户UID和GID，只是会把用户的作用范围限制在每个容器内，即A容器和B容器可以有相同的用户名称和ID的账户，但是此用户的有效范围仅是当前容器内，不能访问另外一个容器内的文件系统，即相互隔离、互补影响、永不相见</p>
+<p><img src="http://www.yunweipai.com/wp-content/uploads/2020/06/image-20200122094332796.png" alt="image"></p>
+<h2 id="cgroup"><a href="#cgroup" class="headerlink" title="cgroup"></a>cgroup</h2><p>在一个容器，如果不对其做任何资源限制，则宿主机会允许其占用无限大的内存空间，有时候会因为代码bug程序会一直申请内存，直到把宿主机内存占完，为了避免此类的问题出现，宿主机有必要对容器进行资源分配限制，比如CPU、内存等，Linux Cgroups的全称是Linux Control Groups，它最主要的作用，就是限制一个进程组能够使用的资源上限，包括CPU、内存、磁盘、网络带宽等等。此外，还能够对进程进行优先级设置，以及将进程挂起和恢复等操作。该技术具体内容可以参照如下博客：<a target="_blank" rel="noopener" href="https://juejin.cn/post/6923535735819763719">https://juejin.cn/post/6923535735819763719</a></p>
+<h2 id="容器管理工具"><a href="#容器管理工具" class="headerlink" title="容器管理工具"></a>容器管理工具</h2><h3 id="docker"><a href="#docker" class="headerlink" title="docker"></a>docker</h3><p>Docker 启动一个容器也需要一个外部模板，称为镜像。docke的镜像可以保存在一个公共的地方共享使用，需要时将镜像下载下来就可以使用。最主要的是可以在镜像基础之上做自定义配置并且可以再把其提交为一个镜像，一个镜像可以被启动为多个容器。</p>
+<p>Docker的镜像是分层的，镜像底层为库文件且为只读层即不能写入也不能删除数据，从镜像加载启动为一个容器后会生成一个可写层，其写入的数据会复制到宿主机上对应容器的目录，但是容器内的数据在删除容器后也会被随之删除。<br><img src="http://www.yunweipai.com/wp-content/uploads/2020/06/image-20200122213106815.png" alt="image"></p>
+<h3 id="podman"><a href="#podman" class="headerlink" title="podman"></a>podman</h3><p>Podman即Pod Manager tool，它是一个 为 Kubernetes 而生的开源的容器管理工具。原来是 CRI-O（即容器运行时接口CRI 和开放容器计划OCI） 项目的一部分，后来被分离成一个单独的项目叫 libpod。其可在大多数Linux平台上使用。它是一种无守护程序的容器引擎，用于在Linux系统上开发，管理和运行任何符合Open Container Initiative（OCI）标准的容器和容器镜像。</p>
+<p>Podman 提供了一个与Docker兼容的命令行前端，Podman 里面87%的指令都和Docker CLI 相同。因此可以简单地认为Docker CLI是podman别名，即“ alias docker &#x3D; podman”。事实上，podman使用的一些库也是docker的一部分。目前，Podman已经被CentOS8集成。</p>
+<p>podman和docker不同之处：</p>
+<blockquote>
+<p>docker 需要在我们的系统上运行一个守护进程(docker daemon)，这会产生一定的开销，而podman 不需要。</p>
+<p>启动容器的方式不同：docker cli命令通过API跟Docker Engine(引擎)交互告诉它我想创建一个container，然后docker Engine才会调用OCI container runtime(runc)来启动一个container。这代表container的process(进程)不会是Docker CLI的child process(子进程)，而是Docker Engine的child process。Podman是直接跟OCI containner runtime(runc)进行交互来创建container的，所以container process直接是podman的child process。</p>
+<p>因为docke有docker daemon，所以docker启动的容器支持–restart选项，但是podman不支持</p>
+<p>docker需要使用root用户来创建容器。podman既可以由root用户运行，也可以由非特权用户运行。</p>
+</blockquote>
+<h2 id="容器相关技术"><a href="#容器相关技术" class="headerlink" title="容器相关技术"></a>容器相关技术</h2><p>容器技术除了的docker之外，还有coreOS的rkt，还有阿里的Pouch，为了保证容器生态的标准性和健康可持续发展，包括Linux 基金会、Docker、微软、红帽谷歌和、IBM等公司在2015年6月共同成立了一个叫open container（OCI）的组织，其目的就是制定开放的标准的容器规范，目前OCI一共发布了两个规范，分别是runtime spec和 image format spec，有了这两个规范，不同的容器公司开发的容器只要兼容这两个规范，就可以保证容器的可移植性和相互可操作性。</p>
+<h3 id="容器runtime"><a href="#容器runtime" class="headerlink" title="容器runtime"></a>容器runtime</h3><p>runtime是真正运行容器的地方，为容器提供相应的运行环境。</p>
+<p>目前主流的三种runtime</p>
+<ul>
+<li>lxc：linux上早期的runtime，Docker早期就是采用lxc作为runtime</li>
+<li>runc：目前Docker默认的runtime，runc遵守OCI规范，因此可以兼容lxc</li>
+<li>rkt：是CoreOS开发的容器runtime，也符合OCI规范，所以使用rkt也可以运行Docker容器</li>
+</ul>
+<h3 id="容器管理工具-1"><a href="#容器管理工具-1" class="headerlink" title="容器管理工具"></a>容器管理工具</h3><p>管理工具连接runtime与用户，对用户提供图形或命令方式操作，然后管理工具将用户操作传递给runtime执行。</p>
+<ul>
+<li>lxc是lxd的管理工具</li>
+<li>Runc的管理工具是docker engine，docker engine包含后台deamon和cli两部分，大家经常提到的Docker就是指的docker engine</li>
+<li>rkt的管理工具是rkt cli</li>
+</ul>
+<h3 id="容器定义工具"><a href="#容器定义工具" class="headerlink" title="容器定义工具"></a>容器定义工具</h3><p>容器定义工具允许用户定义容器的属性和内容，以方便容器能够被保存、共享和重建。</p>
+<ul>
+<li>Dockerfile：包含N个命令的文本文件，通过dockerfile创建出docker image。</li>
+<li>Docker image：是docker 容器的模板，runtime依据docker image创建容器</li>
+<li>ACI(App container image)：与docker image类似，是CoreOS开发的rkt容器的镜像格式</li>
+</ul>
+<h3 id="镜像仓库"><a href="#镜像仓库" class="headerlink" title="镜像仓库"></a>镜像仓库</h3><p>统一保存镜像而且是多个不同镜像版本的地方，叫做镜像仓库</p>
+<ul>
+<li>Docker hub：docker官方的公共仓库，已经保存了大量的常用镜像，可以方便大家直接使用</li>
+<li>阿里云，网易等第三方镜像仓库</li>
+<li>Image registry：docker官方提供的私有仓库部署工具，无web管理界面，目前使用较少</li>
+<li>Harbor：vmware提供的自带web界面自带认证功能的镜像仓库，目前有很多公司使用</li>
+</ul>
+<h3 id="编排工具"><a href="#编排工具" class="headerlink" title="编排工具"></a>编排工具</h3><p>当多个容器在多个主机运行的时候，单独管理容器是相当复杂而且很容易出错。同时也无法实现某一台主机宕机后容器自动迁移到其他主机从而实现高可用的目的。因此需要有一种工具可以实现统一管理、动态伸缩、故障自愈、批量执行等功能，这就是容器编排引擎。</p>
+<p>容器编排通常包括容器管理、调度、集群定义和服务发现等功能</p>
+<ul>
+<li>Docker swarm：docker 开发的容器编排引擎</li>
+<li>Kubernetes：google领导开发的容器编排引擎，内部项目为Borg，且其同时支持docker和CoreOS</li>
+<li>Mesos+Marathon：Mesos是Apache下的开源分布式资源管理框架，它被称为是分布式系统的内核。Mesos最初是由加州大学伯克利分校的AMPLab开发的，后在Twitter得到广泛使用。mesos(资源分配)与marathon(容器编排平台)一起提供容器编排引擎功能</li>
+</ul>
+<h3 id="docker依赖技术"><a href="#docker依赖技术" class="headerlink" title="docker依赖技术"></a>docker依赖技术</h3><p>容器网络：docker自带的网络docker network仅支持管理单机上的容器网络，当多主机运行的时候需要使用第三方开源网络，例如calico、flannel等</p>
+<p>服务发现：容器的动态扩容特性决定了容器IP也会随之变化。因此需要有一种机制自动识别并将用户请求动态转发到新创建的容器上，kubernetes自带服务发现功能，需要结合kube-dns服务解析内部域名。</p>
+<p>容器监控：可以通过原生命令docker ps&#x2F;top&#x2F;stats 查看容器运行状态，另外也可以使Prometheus 、heapster等第三方监控工具监控容器的运行状态</p>
+<p>数据管理：容器的动态迁移会导致其在不同的Host之间迁移，因此如何保证与容器相关的数据也能随之迁移或随时访问，可以使用逻辑卷&#x2F;存储挂载等方式解决</p>
+<p>日志收集：docker原生的日志查看工具docker logs。但是容器内部的日志需要通过ELK等专门的日志收集分析和展示工具进行处理</p>
+<h3 id="docker命令帮助"><a href="#docker命令帮助" class="headerlink" title="docker命令帮助"></a>docker命令帮助</h3><p>查看docker命令帮助</p>
+<pre><code>docker
+man docker 
+docker  --help
+man docker-COMMAND
+docker COMMAND --help
+</code></pre>
+<p>docker版本</p>
+<pre><code>[root@localhost merged]# docker version
+Client: Docker Engine - Community
+ Version:           20.10.21
+ API version:       1.41
+ Go version:        go1.18.7
+ Git commit:        baeda1f
+ Built:             Tue Oct 25 18:04:24 2022
+ OS/Arch:           linux/amd64
+ Context:           default
+ Experimental:      true
+
+Server: Docker Engine - Community
+ Engine:
+  Version:          20.10.21
+  API version:      1.41 (minimum version 1.12)
+  Go version:       go1.18.7
+  Git commit:       3056208
+  Built:            Tue Oct 25 18:02:38 2022
+  OS/Arch:          linux/amd64
+  Experimental:     false
+ containerd:
+  Version:          1.6.12
+  GitCommit:        a05d175400b1145e5e6a735a6710579d181e7fb0
+ runc:
+  Version:          1.1.4
+  GitCommit:        v1.1.4-0-g5fd4c4d
+ docker-init:
+  Version:          0.19.0
+  GitCommit:        de40ad0
+</code></pre>
+<p>验证docker0网卡</p>
+<p>在docker安装启动之后，默认会生成一个名称为docker0的网卡并且默认IP地址为172.17.0.1</p>
+<pre><code>[root@localhost merged]# ip a
+1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: ens33: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc pfifo_fast state UP group default qlen 1000
+    link/ether 00:0c:29:c0:5c:81 brd ff:ff:ff:ff:ff:ff
+    inet 192.168.1.9/24 brd 192.168.1.255 scope global noprefixroute dynamic ens33
+       valid_lft 240631sec preferred_lft 240631sec
+    inet6 2408:8221:581c:8e80:be41:bbfd:6412:d184/64 scope global noprefixroute dynamic 
+       valid_lft 2428sec preferred_lft 2428sec
+    inet6 fe80::61fb:3363:b674:ae48/64 scope link noprefixroute 
+       valid_lft forever preferred_lft forever
+3: virbr0: &lt;NO-CARRIER,BROADCAST,MULTICAST,UP&gt; mtu 1500 qdisc noqueue state DOWN group default qlen 1000
+    link/ether 52:54:00:a4:6c:62 brd ff:ff:ff:ff:ff:ff
+    inet 192.168.122.1/24 brd 192.168.122.255 scope global virbr0
+       valid_lft forever preferred_lft forever
+4: virbr0-nic: &lt;BROADCAST,MULTICAST&gt; mtu 1500 qdisc pfifo_fast master virbr0 state DOWN group default qlen 1000
+    link/ether 52:54:00:a4:6c:62 brd ff:ff:ff:ff:ff:ff
+5: docker0: &lt;NO-CARRIER,BROADCAST,MULTICAST,UP&gt; mtu 1500 qdisc noqueue state DOWN group default 
+    link/ether 02:42:4b:bb:f8:8b brd ff:ff:ff:ff:ff:ff
+    inet 172.17.0.1/16 brd 172.17.255.255 scope global docker0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::42:4bff:febb:f88b/64 scope link 
+       valid_lft forever preferred_lft forever
+</code></pre>
+<p>查看docker相关信息</p>
+<pre><code>[root@ubuntu1804 ~]#docker info
+Client:
+ Debug Mode: false     #client 端是否开启 debug
+
+Server:
+ Containers: 2   #当前 主机运行的容器总数
+  Running: 0     #有几个容器是正在运行的
+  Paused: 0      #有几个容器是暂停的
+  Stopped: 2     #有几个容器是停止的
+ Images: 4       #当前服务器的镜像数
+ Server Version: 19.03.5   #服务端版本
+ Storage Driver: overlay2  #正在使用的存储引擎
+  Backing Filesystem: extfs   #后端文件系统，即服务器的磁盘文件系统
+  Supports d_type: true  #是否支持 d_type
+  Native Overlay Diff: true  #是否支持差异数据存储
+ Logging Driver: json-file   #日志类型 
+ Cgroup Driver: cgroupfs  #cgroups 类型
+ Plugins:                  #插件
+  Volume: local            #卷 
+  Network: bridge host ipvlan macvlan null overlay # overlay 跨主机通信
+  Log: awslogs fluentd gcplogs gelf journald json-file local logentries splunk syslog  #日志类型
+ Swarm: inactive    #是否支持 swarm
+ Runtimes: runc     #已安装的容器运行时
+ Default Runtime: runc   #默认使用的容器运行时
+ Init Binary: docker-init   #初始化容器的守护进程，即 pid 为 1的进程
+ containerd version: b34a5c8af56e510852c35414db4c1f4fa6172339 #版本
+ runc version: 3e425f80a8c931f88e6d94a8c831b9d5aa481657  #runc 版本
+ init version: fec3683  #init 版本
+ Security Options:   #安全选项
+  apparmor     #安全模块，https://docs.docker.com/engine/security/apparmor/
+  seccomp  #安全计算模块，限制容器操作，https://docs.docker.com/engine/security/seccomp/
+   Profile: default  #默认的配置文件
+ Kernel Version: 4.15.0-29-generic  #宿主机内核版本
+ Operating System: Ubuntu 18.04.1 LTS  #宿主机操作系统
+ OSType: linux    #宿主机操作系统类型
+ Architecture: x86_64   #宿主机架构
+ CPUs: 1    #宿主机 CPU 数量
+ Total Memory: 962MiB   #宿主机总内存 
+ Name: ubuntu1804.magedu.org #宿主机 hostname
+ ID: IZHJ:WPIN:BRMC:XQUI:VVVR:UVGK:NZBM:YQXT:JDWB:33RS:45V7:SQWJ #宿主机 ID
+ Docker Root Dir: /var/lib/docker  #宿主机关于docker数据的保存目录
+ Debug Mode: false   #server 端是否开启 debug
+ Registry: https://index.docker.io/v1/  #仓库路径
+ Labels:
+ Experimental: false  #是否测试版
+ Insecure Registries:
+  127.0.0.0/8  : #非安全的镜像仓库
+ Registry Mirrors:
+  https://si7y70hh.mirror.aliyuncs.com/   #镜像仓库
+ Live Restore Enabled: false  #是否开启 活动重启 (重启docker-daemon 不关闭容器 )
+
+WARNING: No swap limit support  #系统警告信息 (没有开启swap资源限制 )
+</code></pre>
+<p>注：VPC是云上私有网络。</p>
+<div class="note green icon-padding flat">
+<p>**参考内容**：</p> 
+<p>1. [http://www.yunweipai.com/34721.html](http://www.yunweipai.com/34721.html)  </p> 
+</div>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://example.com">QiYan</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2022/12/12/Docker/">http://example.com/2022/12/12/Docker/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com" target="_blank">知与行</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/docker/">docker</a></div><div class="post_share"><div class="social-share" data-image="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2022/12/04/Linux%E9%9B%86%E7%BE%A4%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/"><img class="next-cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Linux集群基础概念</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/avatar.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">QiYan</div><div class="author-info__description">学而不思则惘 思而不学则殆</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">16</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">20</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">6</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content"></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Docker%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86"><span class="toc-number">1.</span> <span class="toc-text">Docker基础知识</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Docker%E5%AE%89%E8%A3%85%E4%B8%8E%E5%8D%B8%E8%BD%BD"><span class="toc-number">2.</span> <span class="toc-text">Docker安装与卸载</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E9%80%89%E6%8B%A9"><span class="toc-number">2.1.</span> <span class="toc-text">操作系统选择</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Docker%E7%89%88%E6%9C%AC%E9%80%89%E6%8B%A9"><span class="toc-number">2.2.</span> <span class="toc-text">Docker版本选择</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CentOS%E5%AE%89%E8%A3%85docker"><span class="toc-number">2.3.</span> <span class="toc-text">CentOS安装docker</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#rpm%E5%8C%85%E5%AE%89%E8%A3%85%EF%BC%9A"><span class="toc-number">2.3.1.</span> <span class="toc-text">rpm包安装：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#yum%E6%BA%90%E5%AE%89%E8%A3%85"><span class="toc-number">2.3.2.</span> <span class="toc-text">yum源安装</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%80%E9%94%AE%E5%AE%89%E8%A3%85%E8%84%9A%E6%9C%AC"><span class="toc-number">2.3.3.</span> <span class="toc-text">一键安装脚本</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%AE%89%E8%A3%85"><span class="toc-number">2.3.4.</span> <span class="toc-text">二进制安装</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#CentOS8%E5%AE%89%E8%A3%85docker"><span class="toc-number">2.3.5.</span> <span class="toc-text">CentOS8安装docker</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#docker%E5%8D%B8%E8%BD%BD"><span class="toc-number">2.4.</span> <span class="toc-text">docker卸载</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#namespace"><span class="toc-number">3.</span> <span class="toc-text">namespace</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80"><span class="toc-number">3.1.</span> <span class="toc-text">基础</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%87%86%E5%A4%87"><span class="toc-number">3.2.</span> <span class="toc-text">准备</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#chroot"><span class="toc-number">3.3.</span> <span class="toc-text">chroot</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#UTS-namespace"><span class="toc-number">3.4.</span> <span class="toc-text">UTS namespace</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PID-namespace"><span class="toc-number">3.5.</span> <span class="toc-text">PID namespace</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#NET-Namespace"><span class="toc-number">3.6.</span> <span class="toc-text">NET Namespace</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#User-Namespace"><span class="toc-number">3.7.</span> <span class="toc-text">User Namespace</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#cgroup"><span class="toc-number">4.</span> <span class="toc-text">cgroup</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%B9%E5%99%A8%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7"><span class="toc-number">5.</span> <span class="toc-text">容器管理工具</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#docker"><span class="toc-number">5.1.</span> <span class="toc-text">docker</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#podman"><span class="toc-number">5.2.</span> <span class="toc-text">podman</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%B9%E5%99%A8%E7%9B%B8%E5%85%B3%E6%8A%80%E6%9C%AF"><span class="toc-number">6.</span> <span class="toc-text">容器相关技术</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%B9%E5%99%A8runtime"><span class="toc-number">6.1.</span> <span class="toc-text">容器runtime</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%B9%E5%99%A8%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7-1"><span class="toc-number">6.2.</span> <span class="toc-text">容器管理工具</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%B9%E5%99%A8%E5%AE%9A%E4%B9%89%E5%B7%A5%E5%85%B7"><span class="toc-number">6.3.</span> <span class="toc-text">容器定义工具</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%95%9C%E5%83%8F%E4%BB%93%E5%BA%93"><span class="toc-number">6.4.</span> <span class="toc-text">镜像仓库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%96%E6%8E%92%E5%B7%A5%E5%85%B7"><span class="toc-number">6.5.</span> <span class="toc-text">编排工具</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#docker%E4%BE%9D%E8%B5%96%E6%8A%80%E6%9C%AF"><span class="toc-number">6.6.</span> <span class="toc-text">docker依赖技术</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#docker%E5%91%BD%E4%BB%A4%E5%B8%AE%E5%8A%A9"><span class="toc-number">6.7.</span> <span class="toc-text">docker命令帮助</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/12/12/Docker/" title="docker基础">docker基础</a><time datetime="2022-12-12T14:25:21.471Z" title="发表于 2022-12-12 22:25:21">2022-12-12</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/12/04/Linux%E9%9B%86%E7%BE%A4%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/" title="Linux集群基础概念">Linux集群基础概念</a><time datetime="2022-12-04T11:14:41.278Z" title="发表于 2022-12-04 19:14:41">2022-12-04</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/12/04/MySQL/" title="MySQL系列">MySQL系列</a><time datetime="2022-12-04T09:07:47.746Z" title="发表于 2022-12-04 17:07:47">2022-12-04</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/11/29/Linux-start/" title="Linux系统启动流程(参考)">Linux系统启动流程(参考)</a><time datetime="2022-11-29T07:45:07.822Z" title="发表于 2022-11-29 15:45:07">2022-11-29</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/11/27/Linux-crond/" title="Linux计划任务和日志">Linux计划任务和日志</a><time datetime="2022-11-28T02:39:38.213Z" title="发表于 2022-11-28 10:39:38">2022-11-28</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By QiYan</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
