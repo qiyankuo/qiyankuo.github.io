@@ -1,0 +1,668 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>Devops核心要点和k8s架构概述 | 知与行</title><meta name="author" content="QiYan"><meta name="copyright" content="QiYan"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Devops概述早期采用手动方式安装部署应用程序。手动部署相对繁琐，因此后期出现了自动化工具。如ansible，该工具是一个应用编排工具。它可以实现安装、配置和启动服务。 早期的应用是直接部署在操作系统上的,有了docker之后应用被封装在容器中运行。那么继续使用ansible编排会发现它的操作对象已经发生了变化，而且容器化所提供的接口和早期应用程序的访问、控制、管理接口是有所不同的。这个时候an">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Devops核心要点和k8s架构概述">
+<meta property="og:url" content="http://example.com/2022/12/23/k8s/index.html">
+<meta property="og:site_name" content="知与行">
+<meta property="og:description" content="Devops概述早期采用手动方式安装部署应用程序。手动部署相对繁琐，因此后期出现了自动化工具。如ansible，该工具是一个应用编排工具。它可以实现安装、配置和启动服务。 早期的应用是直接部署在操作系统上的,有了docker之后应用被封装在容器中运行。那么继续使用ansible编排会发现它的操作对象已经发生了变化，而且容器化所提供的接口和早期应用程序的访问、控制、管理接口是有所不同的。这个时候an">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-12-23T08:39:13.331Z">
+<meta property="article:modified_time" content="2022-12-23T08:39:13.328Z">
+<meta property="article:author" content="QiYan">
+<meta property="article:tag" content="k8s">
+<meta name="twitter:card" content="summary"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2022/12/23/k8s/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Devops核心要点和k8s架构概述',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-12-23 16:39:13'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/font.css"><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="知与行" type="application/atom+xml">
+</head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/avatar.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">20</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">21</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">6</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">知与行</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Devops核心要点和k8s架构概述</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-12-23T08:39:13.331Z" title="发表于 2022-12-23 16:39:13">2022-12-23</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-12-23T08:39:13.328Z" title="更新于 2022-12-23 16:39:13">2022-12-23</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/">云原生</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">13.7k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>47分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Devops核心要点和k8s架构概述"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="Devops"><a href="#Devops" class="headerlink" title="Devops"></a>Devops</h2><h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><p>早期采用手动方式安装部署应用程序。手动部署相对繁琐，因此后期出现了自动化工具。如ansible，该工具是一个应用编排工具。它可以实现安装、配置和启动服务。</p>
+<p>早期的应用是直接部署在操作系统上的,有了docker之后应用被封装在容器中运行。那么继续使用ansible编排会发现它的操作对象已经发生了变化，而且容器化所提供的接口和早期应用程序的访问、控制、管理接口是有所不同的。这个时候ansible就不再特别适用了，之后面向容器化的编排工具应运而生。</p>
+<ul>
+<li>docker compose：更适合于单机编排,只能面向一个docker host来执行编排操作。或者说更适用于这种情景</li>
+<li>docker swarm：可以理解为它就是一个集群工具，能将多个docker host提供的计算资源整合成一个资源池。无论底层是什么或者有几个docker主机,docker compose去编排时只需要面向swarm整合出来的这些资源池编排即可，</li>
+<li>docker machine：能够将一个主机迅速初始化为能加入docker swarm集群中的预处理工具，从而主机能够成为docker swarm集群一份子。</li>
+</ul>
+<p>后来k8s在容器编排领域中牢牢占据了百分之八十以上的份额。</p>
+<h3 id="Devops-1"><a href="#Devops-1" class="headerlink" title="Devops"></a>Devops</h3><p>随着业务本身迭代的需要对应的开发模式和应用架构也在不停的发生变化。开发模式从早期的瀑布式开发到后来的敏捷开发，再到后来的精益开发，再到现在把运维和开发整合起来的Devops。应用架构也从早期的单体架构发展到后来的分层架构，再到目前的微服务架构。</p>
+<p>单体架构是将一个应用程序中的所有功能做在一个软件程序中。早期的应用程序复杂度相对来说还是比较简单的，所以做成单体架构时没问题。随着业务的变化人们发现单体应用程序难以承载，因为单体应用程序可能只能装在一个主机上。于是我们就把单体给分开，比如我们经常用到的AMP，这叫分层架构。</p>
+<p>微服务就是把每一个应用都拆解成一个个微小的服务，每个服务只干一件事。传统上的一个单体应用程序到今天为止可能需要拆成100个至数百个微型服务，彼此之间进行协作，这样各个微服务彼此之间的调用关系就变得极其复杂了。比如：谁该调用谁，如何确保调用者与被调用者始终是存在的。因为容器分发和部署起来非常方便。因此微服务几乎天然和容器相关，现在很多微服务架构都是构建在容器之上。</p>
+<blockquote>
+<p>docker技术出现之前Devops中的交付环节和部署环节因为环境因素异构导致部署起来极其困难。恰好容器技术的出现完全弥补了这个困难，使得DevOps变得非常容易实现。</p>
+</blockquote>
+<h4 id="CI"><a href="#CI" class="headerlink" title="CI"></a>CI</h4><p>早期的应用程序从开发到交付要经历什么？</p>
+<p>一般来讲我们可以理解为有一个团队首先要做计划，然后做架构设计。之后才开始进行开发，开发完成后开始构建。构建完成后进行测试，测试无误后交给运维部署。当拿到一个源代码的时候要先编译，这个编译的过程可以理解为构建的过程。构建可以用构建工具进行，构建完以后还要做测试（单元测试，集群测试，功能测试，技术测试等等）。测试如果有问题则打回去修复，没有问题就交付给运维。</p>
+<p>持续集成就是当程序员写完代码的后续构建和测试过程都能自动实现。如本地程序员开发完一段代码并提交到仓库中之后，构建工具会自动从仓库中拖出代码做构建。构建完成以后再被部署到测试环境中自动将各种测试都做完。在提交存盘后到构建之前还有其它测试。这两个维度的测试都没有问题就进入下一步。这个过程就是持续集成的过程。</p>
+<p>整个环节需要人工参与的就是程序开发。对不同的程序来讲它的测试方式是不一样的，因此还需要测试开发工程师给应用程序做全方位测试的时候开发一些自动化测试工具。有一些程序写完以后完全可以使用市面上的一些通用工具写一些测试代码来完成测试。</p>
+<h4 id="CD"><a href="#CD" class="headerlink" title="CD"></a>CD</h4><p>测试完以后需要交付给运维来实现部署，那么该怎么交付呢？如果测试完以后还能自动打包到一个可以被运维得到的文件服务器或者一个仓库中，从而让运维工程师能从中得到打包好的最终产品。如果这步也能自动实现那就叫持续交付。</p>
+<h4 id="CD-1"><a href="#CD-1" class="headerlink" title="CD"></a>CD</h4><p>运维获取到一个新的应用程序，然后需要将其发布到线上。假如交付完后有一款运维工具能够自动把这个产品拖出来，然后将它自动发布到线上去。这个过程就叫持续部署。</p>
+<p>由于容器技术的出现和容器编排工具的实现使得上面这一切变得非常容易。原因在于构建好的产品要部署在目标平台上。假如目标平台的环境各不相同，比如不同版本的linux或windows等。这样我们构建时面向不同的平台可能都会有细微的差别，甚至于显著的差别。因此要实现自动部署是特别困难的，这使得我们要在每一个目标环境中都构建出一个适用的版本。有了容器后该问题迎刃而解。只要目标平台能够运行容器，那么应用程序测试完以后直接做成一个镜像，而后不管是什么平台只需要把镜像运行为容器就可以了。因此正是容器技术的出现使Devops的落地成为了可能。这就是容器技术带来的好处。</p>
+<blockquote>
+<p>这儿需要强调的是DevOps本身并不是一种技术。它是一种文化，是一种运动，是一种趋势。就是以往我们需要手工解决的问题用自动化或工具化的方式来突破Dev和Ops之间的范围和屏障。</p>
+</blockquote>
+<h3 id="发布方式"><a href="#发布方式" class="headerlink" title="发布方式"></a>发布方式</h3><h4 id="蓝绿发布"><a href="#蓝绿发布" class="headerlink" title="蓝绿发布"></a>蓝绿发布</h4><p>蓝绿部署在不停止老版本的前提下，然后直接部署新版本进行测试。确认OK后将流量切到新版本，之后老版本再升级到新版本。这种方式无需停机，并且风险较小。在部署的过程中我们的应用始终在线，并且新版本上线的过程中并没有修改老版本的任何内容。因此，老版本的状态不受影响。只要老版本的资源不被删除，理论上可以在任何时间回滚到老版本。</p>
+<p>特点</p>
+<ul>
+<li>优点：升级切换和回退速度非常快。</li>
+<li>缺点：切换是全量的，如果 V2 版本有问题，则对用户体验有直接影响。同时需要两倍机器资源。</li>
+</ul>
+<h4 id="灰度发布"><a href="#灰度发布" class="headerlink" title="灰度发布"></a>灰度发布</h4><p>灰度发布是指在黑与白之间，能够平滑过渡的一种发布方式。AB Test就是一种灰度发布方式。该种方式让一部分用户继续用A，另一部分用户开始用B。如果用户对B没有什么反对意见，那么逐步扩大范围至到把所有用户都迁移到 B 上面来。灰度发布可以保证整体系统的稳定，在初始灰度的时候就可以发现、调整问题，以保证其影响度。</p>
+<p>特点</p>
+<ul>
+<li>优点：用户体验影响小，灰度发布过程出现问题只影响少量用户。</li>
+<li>不足：发布自动化程度不够，发布期间可引发服务中断。</li>
+</ul>
+<h4 id="滚动发布"><a href="#滚动发布" class="headerlink" title="滚动发布"></a>滚动发布</h4><p>滚动发布是在金丝雀发布基础上的进一步优化改进。它是一种自动化程度较高的发布方式，用户体验比较平滑，是目前成熟型技术组织所采用的主流发布方式。一般是取出一个或者多个服务器停止服务，执行更新，并重新将其投入使用。周而复始，直到集群中所有的实例都更新成新版本。这种部署方式相对于蓝绿部署，更加节约资源。它不需要运行两个集群、两倍的实例数。我们可以部分部署，例如每次只取出集群的 20% 进行升级。</p>
+<p>特点</p>
+<ul>
+<li>优点：用户体验影响小，体验较平滑。</li>
+<li>缺点：发布和回退时间比较缓慢。发布工具比较复杂，LB需要平滑的流量摘除和拉入能力。</li>
+</ul>
+<h2 id="K8S概述"><a href="#K8S概述" class="headerlink" title="K8S概述"></a>K8S概述</h2><h3 id="K8S基础"><a href="#K8S基础" class="headerlink" title="K8S基础"></a>K8S基础</h3><p>如果把大量的应用都构建在容器中的话很显然它不可能运行在单个主机上。如果运行在多个主机上，容器和容器之间可能需要直接通信或容器要面向对外的客户端进行通信要如何管理? 即谁被谁所依赖，这是一个非常复杂的关系。人工管理这几乎是一个无法完成的任务。因为在走向微服务化以后，假如有两百个服务，出故障是必然的，指不定每一天都有几个或者十几个出故障。人工去监控或修复是完全来不及的，而且内部的复杂度靠人来梳理也几乎是无法完成的任务。我们必须要用容器编排工具来实现。</p>
+<p>kubernetes的开发深受谷歌内部一个叫做Borg(博格)系统的影响。Borg是谷歌内部已经工作了十几年的容器编排工具。在2017年，亚马逊，微软，阿里云都宣布在其云平台上原生支持k8s。即它支持用户买了云主机后只需一个按钮就可以快速部署出k8s的应用。除此之外，有些平台还可以对外提供k8s服务，即用户在上面可以直接部署应用程序。提供容器即服务的环境。</p>
+<p>大概在2017年的10月，docker宣布同时在他们的平台上支持swarm和k8s两种工具。同时还有一款容器叫Rocket，它也有一个比较烂的编排工具叫fleet。Rocket直接就放弃了fleet原生使用k8s。</p>
+<p>k8s本身也已经成为红帽Paas Openshift底层核心架构。所以从这个角度来讲k8s只是一个容器编排工具，它还没有到完整的paas这种云计算平台的标准，Openshift就是其中一个实现。我们也可以理解为Openshift就是k8s的发行版。同样的，k8s是很底层的。你要直接使用k8s还需要部署很多工具来解决DevOps或Paas平台的需要。Openshift就是一个集成的解决方案，它将Paas平台，DevOps平台中所需要的一切工具链都直接整合进去了。</p>
+<h3 id="K8S特性"><a href="#K8S特性" class="headerlink" title="K8S特性"></a>K8S特性</h3><h4 id="k8s特性"><a href="#k8s特性" class="headerlink" title="k8s特性"></a>k8s特性</h4><ul>
+<li>自动装箱：基于资源依赖及其约束能够自动完成容器的部署而且不影响其可用性。</li>
+<li>自我修复：即自愈能力。假设镜像是做好的并下载完成的。由于容器非常轻量的特点，一旦一个容器崩了它可以在一秒钟启动。因此有了k8s这样的容器编排平台以后我们更多关注的是群体而不再是个体。当一个个体坏了后干掉就行了。</li>
+<li>水平扩展：自动实现水平扩展。一个容器不够再启一个，还不够就再启一个就行了，只要物理平台资源充足就可以无限扩展。</li>
+<li>服务发现和负载均衡：当我们需要在k8s上运行很多应用程序时，服务和服务之间的关系错综复杂。一个服务如果依赖于其它服务它可以通过服务发现的方式找到依赖的服务。更重要的是一个服务如果我们启用了多个容器它能自动实现负载均衡。</li>
+<li>存储编排：存储卷动态供给。也就意味着某一个容器需要用到存储卷时根据容器自身的需求创建能够满足它需要的存储卷。</li>
+<li>批处理执行：任务的批量处理</li>
+<li>秘钥和配置管理</li>
+<li>自动发布和会滚</li>
+</ul>
+<h4 id="k8s配置管理"><a href="#k8s配置管理" class="headerlink" title="k8s配置管理"></a>k8s配置管理</h4><p>基于一个镜像启动一个容器以后如果期望这个容器中的应用程序换一种配置来运行怎么换呢？在讲dockerfile的时候特别讲到entrypoint，这个指令能够接受用户传递给容器的一些变量。把这些变量的值转换为容器内的应用程序可读取的配置信息，从而能完成容器化应用配置。之所以这么麻烦是因为早期的应用程序是面向云原生而开发的。</p>
+<p>早期这些应用程序通过读取配置文件来获取配置，而云原生开发的最好是能够基于环境变量来获取配置。所以直接改了环境变量的值容器的应用启动起来时就拥有了你所传递给环境变量的配置。但是传统的非云原生的应用程序也需要运行在云环境中，也需要能够通过环境变量来获取要怎么办呢？</p>
+<p>一个折中的办法就是在entrypoint脚本里面可以写一些exec这样的语句，而后把用户传递过来的环境变量的值用sed等工具将其替换到应用程序的配置文件中。从而也能使得应用程序启动加载配置文件时能获取到用户通过环境变量传递而来的外部配置信息。这种配置就使得一个镜像能满足用户在不同环境下运行同一个镜像生成不同配置容器的容器化应用。但是在一个编排工具中用这种方式肯定是有问题的。毕竟你的配置信息保存到哪儿去？</p>
+<p>如果我们要用容器编排平台让容器启动自动化了，但每次启动容器时还要手工去传环境变量的值这是一个很麻烦的事。所以我们需要一个外部的组件自动的保存这些配置信息。当镜像启动为容器时，只需要让镜像去加载外部的配置中心中的配置信息就能完成配置。</p>
+<p>配置中心的概念出现在大规模管理的应用程序环境中。比如有20个nginx服务器，这20个nginx就是我们水平扩展以后用来解决同一问题的负载均衡后的upstream server。如果改了一下它的配置文件，那么我们就不得不使用ansible这样的工具将这一类配置推送到每一个服务器上，而后还要让每个服务器重载生效。有一种简单的替换方法让应用程序加载配置信息时根本就不通过配置文件来获取。完全可以把应用程序的配置信息放在一个服务器中，应用程序启动时不是通过本地文件来加载配置信息而是通过另一个三方服务器上所提供的配置信息直接获取。这种好处就是配置的集中化，以后想改配置文件只需要把配置中心中的配置改掉就好了。像这种功能在k8s上可以实现，直接就把这个所谓的配置信息保存在k8s之上的一个对象中，能让每一个用到此配置对象的容器启动时直接加载，模拟了类似于配置中心的作用。</p>
+<h4 id="k8s集群模型"><a href="#k8s集群模型" class="headerlink" title="k8s集群模型"></a>k8s集群模型</h4><p>kubernetes其实就是一个集群，从我们此前的运维角度来理解的话他就是一个集群，要组合多台主机的资源整合成一个大的资源池并同一对外提供计算，存储等能力的集群。这个集群说白了就是我们找许多台主机每一个主机上都安装上kubernetes的相关应用程序，并通过这个应用程序协同工作。把多个主机当一个主机来使用，仅此而已。前提是我们在每一个主机上都要安装相关的应用程序，让大家在这个应用程序级别上通信从而完成彼此之间的协调。但是在k8s集群中主机是分角色的，我们集群有两种常用模型，一种是P2P的，像redis cluster这种没有中间节点。每一个节点都能直接接收用户请求，能路由请求。第二种就是有中心节点的集群，比如像mysql的主从复制，有一个节点是主节点，其它节点和其进行同步。 在分布式系统时说过像hdfs这种文件系统它们也是有中心节点的，也称之为名称节点。 k8s就属于一个有中心节点架构的集群系统。从这个维度来讲他其实被称为叫 master&#x2F;nodes模型，即一组节点用来扮演主节点， 主节点不需要太多，一般用来做冗余，有三个就够了，而nodes(worker)指真正提供工作的节点。</p>
+<h3 id="K8S集群"><a href="#K8S集群" class="headerlink" title="K8S集群"></a>K8S集群</h3><p>kubernetes其实就是一个集群。从此前的运维角度来理解的话它就是一个集群，组合多台主机的资源整合成一个大的资源池并统一对外提供计算，存储等能力的集群。</p>
+<p>这个集群说白了就是我们找许多台主机每一个主机上都安装上kubernetes的相关应用程序，并通过这个应用程序协同工作。从而把多个主机当一个主机来使用。前提是在每一个主机上都要安装相关的应用程序，让大家在这个应用程序级别上通信从而完成彼此之间的协调。</p>
+<p>在k8s集群中主机是分角色的。我们集群有两种常用模型，一种是P2P的。像redis cluster这种没有中间节点。每一个节点都能直接接收用户请求，能路由请求。第二种就是有中心节点的集群，比如像mysql的主从复制，有一个节点是主节点，其它节点和其进行同步。 在分布式系统时说过像hdfs这种文件系统它们也是有中心节点的，也称之为名称节点。</p>
+<p>k8s就属于一个有中心节点架构的集群系统。从这个维度来讲他其实被称为叫master&#x2F;nodes模型，即一组节点用来扮演主节点， 主节点不需要太多，一般用来做冗余，有三个就够了。而nodes(worker)指真正提供工作的节点。</p>
+<p><img src="https://note.youdao.com/yws/api/personal/file/WEBeaa4bc6f34a1c46e7fbb2eae7958af28?method=download&shareKey=3f235a2883e4fef3ba87115320bf1f3b" alt="image"></p>
+<p>上图就反应了k8s的架构特点。有一个或一组节点是主节点，是整个集群的唯一入口，各node节点都是用来贡献一部分计算能力、存储能力等相关资源的节点，即运行容器的节点。那么用户怎么在这个集群中运行容器呢？</p>
+<p>用户先发送创建或启动容器的请求给master。master中有一个调度器去分析各node现有的可用资源状态，找一个最佳适配节点运行用户所请求的容器并把它调度到该node。然后这个node本地的docker或其它容器引擎负责把这个容器启动起来。</p>
+<p>要启动这个容器肯定是需要镜像的，镜像在何处呢？在docker hub的registry中，所以这个node启动时先检查本地是否有镜像，如果没有的话就先把镜像拖下来再启动。因此k8s cluster自身可能并没有托管所需要依赖的每一个容器镜像。所以需要到registry上下载。不过我们自己也可以建私有registry，registry自己也可以是一个容器。因此我们完全可以把registry托管在k8s集群中。</p>
+<h4 id="master"><a href="#master" class="headerlink" title="master"></a>master</h4><p>master上最重要的组件：</p>
+<ul>
+<li><p>API Server：提供集群管理的REST API接口，即用户访问入口。只有API server才能直接操作etcd，其它模块需要通过API server才能查询和修改数据。</p>
+</li>
+<li><p>Scheduler：API Server只是负责接收请求解析请求处理请求的，如果用户这次的请求是要创建一个容器，这个容器不应该运行在master之上而是应该运行在node之上。那么哪一个node合适呢？那就由调度器来决定，即Scheduler，他负责去观测每一个node之上总共可用的CPU，内存，资源并根据用户所请求创建的这个容器所需要的资源量来进行评估哪一个节点最合适。为此kubernetes设计了一个两级调度的方式来完成调度。第一步先做预算，即评估到底有多少个节点是符合这个容器运行需求的。第二步再做优选，从预选中选出来的节点根据优选算法决定在哪个最佳节点上运行。</p>
+</li>
+<li><p>控制器管理器：现在假如我们有很多很多控制器，那么如果控制器挂了呢？控制器有问题了他又怎么去监控这些应用呢？因此，用于监控容器健康的控制器不健康了那么容器的健康也就无法保证了，那么怎么办呢？在master上我们有第三个组件叫控制器管理器，负责监控着每一个控制器是健康的，如果控制器不健康了由控制器管理器确保他是健康的就可以了。那么如果控制器管理器不健康了呢？因此要在控制器管理器级别做冗余。因此master 是三节点。master每个节点上都有控制器管理器，大家都在的时候这三个控制器管理器只有一个正常工作，他是主节点，其它的都是做冗余的，万一他挂了就在其它节点上启动起来了，因此控制器管理器也被做了高可用。</p>
+</li>
+</ul>
+<p>可以理解为master是集群的大脑，他有三大组件，第一为API Server负责接收并处理请求。第二为Scheduler，调度容器创建的请求。第三为控制器管理器，确保已经创建的容器处于健康状态。当然，控制器管理器是确保控制器健康的，而控制器才是用来确保容器监控的，不过k8s支持众多类型的控制器，控制容器自身健康的只是其中一种，他还有很多种其它的控制器，另外我们以后在k8s之上就不能再这么称呼容器了，因为k8s上最小运行的单元不是容器而是pod</p>
+<h4 id="nodes"><a href="#nodes" class="headerlink" title="nodes"></a>nodes</h4><p>nodes上最重要的组件：</p>
+<ul>
+<li><p>kubelet：负责Pod对应的容器的创建、启停等任务，同时与Master节点密切协作，实现集群管理的基本功能。</p>
+</li>
+<li><p>容器引擎：(最流行的docker，也可以是其他)</p>
+</li>
+<li><p>kube-proxy：node之上的守护进程，随时与apiserver通信，用于管理node上的各service的规则。</p>
+</li>
+<li><p>etcd：负责保存 Kubernetes Cluster 的配置信息和各种资源的状态信息。当数据发生变化时，etcd 会快速地通知 Kubernetes 相关组件。</p>
+</li>
+<li><p>控制器：如果node节点宕机了那么此前运行在此node上的所有容器也就不见了。刚刚我们说过kubernetes也要有自愈能力，一旦这个容器不见了不需要用户人工参与，只需要用另外一个新的同样的个体来取代他就行了。接下来需要在其它节点上创建出一个一模一样的容器来，问题是如何确保这个容器始终是健康的呢？他一旦故障时候怎么知道他故障了？需不需要持续监控着他呢？所以k8s还有一大堆叫控制器的应用程序，负责去监控他所管理的每一个容器是否是健康的，一旦发现不健康了控制器就负责向API Server发送请求说我的容器挂了一个，你帮我再调度重新启动一个。于是由Scheduler在其它节点中挑一个合适的并启动起来。因此控制器需要在本地不停的loop即周期性探测，比如持续性探测它所管理的容器是否是健康的，一旦不健康或不符合用户所定义的目标工作状态就需要确保它始终不断的向用户所期望的状态靠近，以确保它是符合用户期望的。</p>
+</li>
+</ul>
+<p>node是k8s集群的工作节点，负责运行由master指派的各种任务，而最根本的是他的最核心的任务就是以pod的形式去运行容器。理论上讲node可以是任何形式的其它设备，只要能够装上k8s集群单元程序和存在对应的资源就可以作为k8s集群的一份子来进行工作。</p>
+<h4 id="pod"><a href="#pod" class="headerlink" title="pod"></a>pod</h4><p>k8s并不直接调度容器的运行，其调度的目标叫pod。其可以理解为容器的外壳，给容器做了一层抽象的封装，所以pod便成了k8s之上最小的调度逻辑单元。</p>
+<p>在pod内用来运行容器。但是一个pod中可以包含多个容器。这多个容器它们共享NET，UTS和IPS三个网络名称空间，另外三个User，mnt，PID是互相隔离的。所以这样一来你会发现一个pod内的多个容器（大家知道容器是为了运行程序的），这多个程序就共享同一个主机名，同一个网络等，对外他们更像是同一个虚拟机。</p>
+<p>所以Pod是用来模拟传统的虚拟机的。即一个虚拟机上可以运行多个程序，这多个程序拥有同一组地址对外通信，他们彼此之间可以使用lo通信。这算是k8s在组织容器时一个非常非常精巧的办法使得我们可以构建较为精细的容器间通信。这就叫pod，</p>
+<p>此外同一个Pod内的各容器还共享第二种资源叫存储卷，假如我们要定义一个存储卷，让一个pod的第一个容器能访问，那么第二个容器可以共享挂载同一个存储。所以他们还要共享存储卷，存储卷此时不再属于容器，而是属于Pod。就好像是虚拟机的磁盘，大家知道同一个虚拟机上的多个进程可以访问同一个目录。</p>
+<p>所以各node主要是为了运行pod，不过一般说来一个pod只放一个容器，除非容器之间有特别特别紧密的关系需要放在同一个pod中。另外如果在同一个pod中需要放多个容器，我们通常只有一个主容器，其它容器是为了辅助这个主容器中的应用程序完成更多功能。比如elk中，假如我们这个容器中跑的是个nginx，他会生成很多日志，我们要收集日志，通常需要在目标服务器上部署一个日志收集的agent，filbet或logstash。一个容器中只运行一个程序，如果运行了nginx就不能再运行日志收集程序了，因此此时logstash就需要运行在另一个容器中。此时nginx就是主容器，logstash等就是辅助容器，也叫边车。它只是为了辅助主容器的主程序的某些功能而设置的。所以我们的调度器调度的也是pod，我们的node运行也是Pod，并且Pod是一个原子单元，也就意味着一个Pod内无论运行一个容器还是多个容器，一旦我们把某一个pod调度到某node上运行后这一个Pod的所有容器只能运行在同一个node之上。</p>
+<p>所有的pod都运行在一个集群中我们将来想分类管理怎么办呢？比如我们想删除某一类pod要怎么删呢？我想让某个控制器只管理其中一部分Pod，他怎么能识别出来这一堆pod呢？这么多pod我们不可能靠pod的名称来识别，pod随时创建一个名称假如是一个独有标识符，那么一个pod因为故障而被重新创建新pod这个新pod和原Pod名称可能不一样。只不过他内部运行的应用程序是一样的。所以我们不能靠名称来识别，一般而言他不是固定唯一的标识符。</p>
+<p>同时我们又需要将一类pod归组，比如我们创建四个nginx pod，将来我期望对它们统一管理使用一个控制器，如果我们把控制器删了就把这四个nginx pod同时也删掉了。控制器还需要确保这四个nginx pod都是在的，缺一个就补一个，多一个就杀一个，精确符合我们期望的四个才行。因此它必须要做识别目前符合我们期望的有几个。因此为了能够实现pod识别，我们需要在pod上附加一些元数据。可以直接给其打上标签，这个标签就是key value类型的数据。</p>
+<p>当然我们在k8s之上标识pod的标签和容器标签是两回事。我们只是类似的效果，用标签来识别pod，我们创建完Pod后可以直接给pod打上标签，让人能够基于这个标签的值来识别出Pod来，比如我们创建了四个nginx pod我们可以给这四个pod每一个都加上一个标签叫做app。它们的值都等于nginx，所以我们将来想把这一类挑出来怎么挑呢？条件就是拥有key叫app，这个app的值就是nginx，这样就可以把其分拣出来了。</p>
+<p>所以标签是我们在k8s之上管理大规模pod资源并且能够分类识别和管理的非常非常重要的途径和凭证。问题是我们怎么能把这些pod挑出来呢？这种筛选机制就需要标签选择器来实现。即selector。因此简单来讲标签选择器就是一种根据标签来过滤符合条件的资源对象的机制。其实标签不只是Pod能用，很多其它资源都能用，因此这种选择器我们应该叫做标签选择器而不是Pod 标签选择器。因为k8s是一个restful风格的api，通过http或https对外提供api服务。因此restful风格中几乎所有被操作的目标都是对象。所有对象都可用标签选择器来选择，只不过pod是其中最重要的一类对象。</p>
+<h2 id="Kubernetes基础概念"><a href="#Kubernetes基础概念" class="headerlink" title="Kubernetes基础概念"></a>Kubernetes基础概念</h2><h3 id="Pod分类"><a href="#Pod分类" class="headerlink" title="Pod分类"></a>Pod分类</h3><p>Pod分为两类一种是自主式Pod，一种是控制器管理的Pod</p>
+<h4 id="自我管理式Pod："><a href="#自我管理式Pod：" class="headerlink" title="自我管理式Pod："></a>自我管理式Pod：</h4><p>自我管理的，创建之后。仍然是需要提交给API Server，API Server接受之后然后由调度器调度到指定的node节点，由node启动此pod。如果pod中的容器出现故障，需要重启容器时需要kubelet来完成。但是，如果节点故障了那么这个pod就消失了。没法实现全局调度。</p>
+<h4 id="控制器管理的pod："><a href="#控制器管理的pod：" class="headerlink" title="控制器管理的pod："></a>控制器管理的pod：</h4><p>Pod在由调度器将其调度到集群中的某节点运行以后任务也就被终止了。但是有一些任务比如nginx或tomcat是作为守护进程运行的，要确保时刻处于运行状态，一旦出现故障我们必须要第一时间发现，要么是取代它要么是重启它。因此k8s提供了pod控制器来时刻监控pod状态。</p>
+<ul>
+<li><p>ReplicationController(副本控制器)：它是最早的控制器。该控制器时刻保持定义pod的副本数。同时还能实现滚动更新，即先创建一个pod然后删掉一个老的pod，之后再创建一个pod再删除一个老的pod。</p>
+</li>
+<li><p>ReplicaSet(副本集控制器)：新版本中该控制器取代了ReplicationController。它不直接使用，它需要一个声明式更新的控制器Deployment来负责管理。Deployment控制器还支持二级控制器，叫HPA（HorizontalPodAutoscaler：水平pod自动伸缩控制器）。Deployment只能管理那些无状态的应用。</p>
+</li>
+<li><p>statefulSet(有状态副本集)：有状态的应用需要使用新的控制器叫statefulSet。</p>
+</li>
+<li><p>DaemonSet：在每一个node上运行一个副本</p>
+</li>
+<li><p>job：运行一次</p>
+</li>
+<li><p>Ctonjob：周期性作业</p>
+</li>
+</ul>
+<h3 id="服务发现"><a href="#服务发现" class="headerlink" title="服务发现"></a>服务发现</h3><p>k8s为每一组提供同类服务的pod和客户端之间添加了一个中间层，这个中间层就叫service。service只要不删除那么它的名称和地址就是固定的。</p>
+<p>当访问某一个服务时，不用自动再去发现什么功能。它只需要在配置文件中写明这个服务的地址或者服务的名称就行。而这个服务不但能提供一个稳定的访问入口，并且还能起到调度器的功能，服务能将请求代理到后端的Pod上，一旦pod宕机了那么又会自动新建一个pod和service关联。</p>
+<p>service关联后端的pod不是通过ip地址或者主机名，而是通过lable。因此只要你创建的pod lable是固定的那么都能被service识别，当pod被关联进service后service才会探测pod的ip地址和主机名作为自己调度的后端可用服务器主机对象。在k8s中service不是应用程序也不是组件，而是iptable中的dnet规则。我们创建一个dnat规则说所有到达某地址的都统统被目标地址转换成某某某地址。但凡pod改变那么service转发的目标地址也会发生改变，怎么样才能使每个节点上的service规则都改变呢？</p>
+<p>以上就需要用到运行在每个node之上的kube-proxy组件，它负责与api-server进行通信。当pod发生变化后是需要保存在API Server中的，而API Server内容发生改变后会生成通知事件，这个事件可以被任何关联的组件接收到。即一旦发现某一service背后的pod(地址)发生改变，那么由kube-proxy负责在本地把此ip地址反应在iptables或ipvs中。因此service的管理是由kube-proxy实现的。</p>
+<p>如果service背后的同一组pod由很多dnat来实现那么调度效果上可能不尽人意，因此，在1. 11版本中已经把iptables规则进一步改成了ipvs规则。即每创建一个service就相当于生成了一条nat模型的ipvs规则。并且支持用户自己指定调度算法，因此lvs算是基础性服务。　</p>
+<p>service作为k8s对象来讲，有service名称。service的名称也相当于是这个服务的名称，可以被解析。名称解析靠dns，所以我们装完k8s集群后你会发现第一件事就是需要在k8s集群上部署一个dns pod以确保各dns被解析。dns pod是基础级的系统架构级的对象。因此他们也被称为集群的附件（AddOns）</p>
+<p>在k8s中创建资源是这样的：比如需要创建一个nginx pod。首先定义一个nginx pod控制器，把控制器创建出来它会自动帮你创建出相关的pod来。service需要手动创建。</p>
+<h3 id="附件"><a href="#附件" class="headerlink" title="附件"></a>附件</h3><p>DNS：service的名称解析依赖于dns pod。dns pod会动态更新解析记录，即当集群中IP或名称有变动时DNS pod中的解析记录也会动态改变。</p>
+<p>各监控组件， 如普罗米修斯 + granfa</p>
+<h3 id="网络模型"><a href="#网络模型" class="headerlink" title="网络模型"></a>网络模型</h3><p><img src="https://note.youdao.com/yws/api/personal/file/WEB8a43f08a40d7e1fdddbc514f7a372442?method=download&shareKey=ee56cbe2011b56a49942732989d64f06" alt="image"></p>
+<p>网络类型：</p>
+<p>1、pod网络：各pod运行在同一网络中</p>
+<p>2、service网络（集群网络）：service网络地址和pod地址是不在同一网段的，pod 地址是配置在pod内部的网络名称空间中，是可以ping通的。而service是一个虚拟地址，只存在于iptables规则中。</p>
+<p>3、节点网络：因此有访问请求时首先到达至节点网络由节点网络代理至集群网络，再由集群网络代理至pod网络。</p>
+<p>pod通信：</p>
+<p>1、同一pod内的多个容器之间靠lo回环接口通信。  </p>
+<p>2、无论是否运行在同一节点上，各pod之间都在同一网段，并且可以直接进行通信。（overlay network：叠加网络）</p>
+<p>3、pod与service之间的通信。只要创建一个service那么这个规则会反应到集群每一个节点上。因此当有一个容器要访问service时那么首先会把请求发送到网关，一般是docker0桥的地址，然后docker0桥检查iptables规则时就能发现这个上述规则。</p>
+<p>k8s本身不提供网络解决方案。网络解决方案由第三方插件提供，该插件也可以作为附件使用。无论是哪个第三方网络服务商提供的网络解决方案都应该负责至少管理两种网络：pod网络和集群网络。节点网络由自己规划。</p>
+<p>k8s通过CNI（容器网络接口）插件体系来接入外部的解决方案。只要你是网络服务提供商，能遵循CNI开发相应服务，那么该服务就能作为k8s的网络解决方案来使用。这些网络解决方案可以以附件的方式托管运行在集群之上。它们虽然托管运行在网络集群之上，但是他们需要共享节点的网络名称空间，这样就能以容器的方式来进行系统管理。</p>
+<p>其实网络功能需要两个维度。第一就是提供网络功能，给pod或service提供ip地址之类的。第二个维度是：k8s之上的网络解决方案还要求它应该能够提供网络策略功能。即能够定义pod之间能否互相访问，比如pod之间的隔离。因此在k8s上就引入了名称空间的逻辑组件。</p>
+<p>目前来讲，能作为附件运行的CNI插件很多。比较流行的如下。</p>
+<p>1、flannel（只支持网络配置，不支持网络策略）：纯粹的叠加网络实现。</p>
+<p>2、calico（支持网络配置和网络策略，部署比较困难）：使用bgp协议直接路由通信，为三层隧道网络。</p>
+<p>3、canel(flannel+calico)</p>
+<h3 id="k8s证书"><a href="#k8s证书" class="headerlink" title="k8s证书"></a>k8s证书</h3><p>API Server需要存储集群中的各对象的信息，各master之间需要共享此存储信息。因此master并没有将数据放在本地，而是放在共享存储etcd中。etcd是一个键值存储的数据系统，和redis有点像，更有点像zookeeper(支持选举)。因此etcd需要做高可用，并且其也是restful集群（通过http或https通信）。</p>
+<p>etcd集群中一个端口进行集群内部通信，一个端口用于提供客户端服务。因此，内部通信需要专门的点对点证书来配置https。etcd向客户端（api server）提供服务时的http协议要想加密需要用另外一套证书实现。同理，k8s的API Server向客户端提供服务的http协议加密也需要用https，使用另外一套证书。因为这是k8s客户端和服务端之间通信，而且最好和etcd不要属于同一个ca来签署。</p>
+<p>为了足够安全手动部署一套k8s至少需要建5套私有ca，具体如下：</p>
+<ul>
+<li><p>etcd 内部通信需要一套ca和签署证书。</p>
+</li>
+<li><p>etcd 向客户端（API server）提供通信需要一套ca和一套证书。</p>
+</li>
+<li><p>api server向客户端提供服务需要一套ca和一套证书。</p>
+</li>
+<li><p>api server和各node的kubelet组件通信需要一套ca和证书。</p>
+</li>
+<li><p>api server和各node的kube-proxy组件通信需要一套ca和证书。</p>
+</li>
+</ul>
+<h3 id="kubeadm初始化k8s集群"><a href="#kubeadm初始化k8s集群" class="headerlink" title="kubeadm初始化k8s集群"></a>kubeadm初始化k8s集群</h3><h4 id="概述-1"><a href="#概述-1" class="headerlink" title="概述"></a>概述</h4><p>本次安装软件版本如下：</p>
+<ul>
+<li>docker-ce-20.10.9 </li>
+<li>kubelet-1.23.5 </li>
+<li>kubeadm-1.23.5</li>
+</ul>
+<p>kubeadm安装的各组件是以Pod方式运行的，所以每个节点都需要先安装上docker和kubelet。k8s中的Master节点至少2个CPU和2G内存</p>
+<p>查看k8s需要的默认镜像：</p>
+<pre><code>kubeadm config images list
+</code></pre>
+<p>使用kubeadm init或者join出错想要重新配置时可以使用kubeadm reset重置</p>
+<h4 id="准备"><a href="#准备" class="headerlink" title="准备"></a>准备</h4><table>
+<thead>
+<tr>
+<th align="left">主机名</th>
+<th align="left">角色</th>
+<th align="left">IP</th>
+<th align="left">系统版本</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">master.kubernetes</td>
+<td align="left">master</td>
+<td align="left">192.168.1.8</td>
+<td align="left">CentOS7.7</td>
+</tr>
+<tr>
+<td align="left">node01.kubernetes</td>
+<td align="left">node</td>
+<td align="left">192.168.1.9</td>
+<td align="left">CentOS7.7</td>
+</tr>
+<tr>
+<td align="left">node02.kubernetes</td>
+<td align="left">node</td>
+<td align="left">192.168.1.10</td>
+<td align="left">CentOS7.7</td>
+</tr>
+</tbody></table>
+<p><img src="https://note.youdao.com/yws/api/personal/file/WEB635817a29deb31db3f0c230433f6ff82?method=download&shareKey=be46cf5dda24a1b11d9441fe0274f4fd" alt="image"></p>
+<ol>
+<li><p>各节点时间同步</p>
+</li>
+<li><p>各节点名称解析（dns或hosts）</p>
+<pre><code> cat /etc/hosts
+ 192.168.1.8 master master.kubernetes
+ 192.168.1.9 node01 node01.kubernetes
+ 192.168.1.10 node02 node02.kubernetes
+</code></pre>
+</li>
+<li><p>各节点的firewalld、selinux服务均disble</p>
+<pre><code> # 关闭防火墙
+ systemctl disable firewalld
+ systemctl stop firewalld
+
+ # 关闭selinux
+ setenforce 0
+ 
+ vi /etc/selinux/config
+ SELINUX=disabled
+</code></pre>
+</li>
+<li><p>创建&#x2F;etc&#x2F;sysctl.d&#x2F;k8s.conf文件，添加如下内容</p>
+<pre><code> net.bridge.bridge-nf-call-ip6tables = 1
+ net.bridge.bridge-nf-call-iptables = 1
+ net.ipv4.ip_forward = 1
+ 
+ # 执行命令使修改生效
+ modprobe br_netfilter
+ sysctl -p /etc/sysctl.d/k8s.conf
+</code></pre>
+</li>
+<li><p>kube-proxy开启ipvs的前置条件</p>
+<pre><code> # 在 node01，node02上执行以下脚本
+ # 由于ipvs已经加入到了内核的主干，所以为kube-proxy开启ipvs的前提需要加载以下的内核模块ip_vs、ip_vs_rr、ip_vs_wrr、ip_vs_sh、nf_conntrack_ipv4
+
+ cat &gt; /etc/sysconfig/modules/ipvs.modules &lt;&lt;EOF
+ #!/bin/bash
+ ipvs_modules=&quot;ip_vs ip_vs_lc ip_vs_wlc ip_vs_rr ip_vs_wrr ip_vs_lblc ip_vs_lblcr ip_vs_dh ip_vs_sh ip_vs_fo ip_vs_nq ip_vs_sed ip_vs_ftp nf_conntrack_ipv4&quot;
+ for kernel_module in \$&#123;ipvs_modules&#125;; do
+     /sbin/modinfo -F filename \$&#123;kernel_module&#125; &gt; /dev/null 2&gt;&amp;1
+     if [ $? -eq 0 ]; then
+         /sbin/modprobe \$&#123;kernel_module&#125;
+     fi
+ done
+ EOF
+
+ chmod 755 /etc/sysconfig/modules/ipvs.modules &amp;&amp; bash /etc/sysconfig/modules/ipvs.modules &amp;&amp; lsmod | grep ip_vs
+
+ # 上面脚本创建/etc/sysconfig/modules/ipvs.modules文件，保证在节点重启后能自动加载所需模块。使用lsmod | grep -e ip_vs -e nf_conntrack_ipv4命令查看是否已经正确加载所需的内核模块。
+ 
+ # 接下来还需要确保各个节点上已经安装了ipset软件包yum install ipset。 为了便于查看ipvs的代理规则，最好安装一下管理工具ipvsadm yum install ipvsadm。
+ 
+ # 如果以上前提条件不满足，则即使kube-proxy的配置开启了ipvs模式，也会退回到iptables模式。
+</code></pre>
+</li>
+<li><p>配置yum源</p>
+<pre><code> # cat /etc/yum.repos.d/kubernetes.repo 
+ [kubernetes]
+ name=Kubernetes Repo
+ baseurl=https://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64/
+ gpgcheck=0
+ # cat /etc/yum.repos.d/docker-ce.repo 
+ [docker-ce-stable]
+ name=Docker CE Stable - $basearch
+ baseurl=https://mirrors.aliyun.com/docker-ce/linux/centos/7/$basearch/stable
+ enabled=1
+ gpgcheck=1
+ gpgkey=https://mirrors.aliyun.com/docker-ce/linux/centos/gpg
+ 
+ [docker-ce-stable-debuginfo]
+ name=Docker CE Stable - Debuginfo $basearch
+ baseurl=https://mirrors.aliyun.com/docker-ce/linux/centos/7/debug-$basearch/stable
+ enabled=0
+ gpgcheck=1
+ gpgkey=https://mirrors.aliyun.com/docker-ce/linux/centos/gpg
+ 
+ [docker-ce-stable-source]
+ name=Docker CE Stable - Sources
+ baseurl=https://mirrors.aliyun.com/docker-ce/linux/centos/7/source/stable
+ enabled=0
+ gpgcheck=1
+ gpgkey=https://mirrors.aliyun.com/docker-ce/linux/centos/gpg
+ 
+ [docker-ce-edge]
+ name=Docker CE Edge - $basearch
+ baseurl=https://mirrors.aliyun.com/docker-ce/linux/centos/7/$basearch/edge
+ enabled=0
+ gpgcheck=1
+ gpgkey=https://mirrors.aliyun.com/docker-ce/linux/centos/gpg
+ 
+ [docker-ce-edge-debuginfo]
+ name=Docker CE Edge - Debuginfo $basearch
+ baseurl=https://mirrors.aliyun.com/docker-ce/linux/centos/7/debug-$basearch/edge
+ enabled=0
+ gpgcheck=1
+ gpgkey=https://mirrors.aliyun.com/docker-ce/linux/centos/gpg
+ 
+ [docker-ce-edge-source]
+ name=Docker CE Edge - Sources
+ baseurl=https://mirrors.aliyun.com/docker-ce/linux/centos/7/source/edge
+ enabled=0
+ gpgcheck=1
+ gpgkey=https://mirrors.aliyun.com/docker-ce/linux/centos/gpg
+ 
+ [docker-ce-test]
+ name=Docker CE Test - $basearch
+ baseurl=https://mirrors.aliyun.com/docker-ce/linux/centos/7/$basearch/test
+ enabled=0
+ gpgcheck=1
+ gpgkey=https://mirrors.aliyun.com/docker-ce/linux/centos/gpg
+ 
+ [docker-ce-test-debuginfo]
+ name=Docker CE Test - Debuginfo $basearch
+ baseurl=https://mirrors.aliyun.com/docker-ce/linux/centos/7/debug-$basearch/test
+ enabled=0
+ gpgcheck=1
+ gpgkey=https://mirrors.aliyun.com/docker-ce/linux/centos/gpg
+ 
+ [docker-ce-test-source]
+ name=Docker CE Test - Sources
+ baseurl=https://mirrors.aliyun.com/docker-ce/linux/centos/7/source/test
+ enabled=0
+ gpgcheck=1
+ gpgkey=https://mirrors.aliyun.com/docker-ce/linux/centos/gpg
+ 
+ [docker-ce-nightly]
+ name=Docker CE Nightly - $basearch
+ baseurl=https://mirrors.aliyun.com/docker-ce/linux/centos/7/$basearch/nightly
+ enabled=0
+ gpgcheck=1
+ gpgkey=https://mirrors.aliyun.com/docker-ce/linux/centos/gpg
+ 
+ [docker-ce-nightly-debuginfo]
+ name=Docker CE Nightly - Debuginfo $basearch
+ baseurl=https://mirrors.aliyun.com/docker-ce/linux/centos/7/debug-$basearch/nightly
+ enabled=0
+ gpgcheck=1
+ gpgkey=https://mirrors.aliyun.com/docker-ce/linux/centos/gpg
+ 
+ [docker-ce-nightly-source]
+ name=Docker CE Nightly - Sources
+ baseurl=https://mirrors.aliyun.com/docker-ce/linux/centos/7/source/nightly
+ enabled=0
+ gpgcheck=1
+ gpgkey=https://mirrors.aliyun.com/docker-ce/linux/centos/gpg
+</code></pre>
+</li>
+</ol>
+<h4 id="安装软件"><a href="#安装软件" class="headerlink" title="安装软件"></a>安装软件</h4><p>master, node: 安装 kubelet, kubeadm, docker</p>
+<p>master执行：</p>
+<pre><code>yum install docker-ce kubelet kubeadm kubectl -y
+ kubeadm：kubernetes集群管理工具，用来部署完整意义上的k8s集群，（自动生成证书等等）
+ kubectl：用于控制集群状态（管理pod等）
+ 
+# 安装完成后，配置忽略Swap
+cat /etc/sysconfig/kubelet 
+KUBELET_EXTRA_ARGS=&quot;--fail-swap-on=false&quot;  (忽略swap)
+KUBE_PROXY_MODE=ipvs （后续使用service需要配置）
+</code></pre>
+<p>node执行：</p>
+<pre><code>yum install docker-ce kubelet kubeadm -y 
+</code></pre>
+<h4 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h4><p>设置docker和kubelet为自启动（node节点也需要设置）</p>
+<pre><code># 首先只能设置为开机自启动，但先不要不要手工启动该服务（即使现在启动也启动不起来），等初始化完成了再启动
+systemctl enable kubelet #初始化工作完成前 kubelet不能启动
+systemctl enable docker.service
+</code></pre>
+<p>master: kubeadm init 初始化</p>
+<pre><code> [root@master ~]kubeadm init --help
+     --apiserver-advertise-address：表示apiserver对外的地址是什么，默认是0.0.0.0
+    
+     --apiserver-bind-port：表示apiserver的端口是什么，默认是6443
+    
+     --cert-dir：加载证书的目录，默认在/etc/kubernetes/pki
+    
+     --config：配置文件
+    
+     --ignore-preflight-errors：在预检中如果有错误可以忽略掉，比如忽略 IsPrivilegedUser,Swap.等
+    
+     --kubernetes-version：指定要初始化k8s的版本信息是什么
+    
+     --pod-network-cidr ：指定pod使用哪个网段，默认使用10.244.0.0/16
+    
+     --service-cidr：指定service组件使用哪个网段，默认10.96.0.0/12
+
+# master节点上kubeadm init时可以使用 --image-repository=registry.aliyuncs.com/google_containers指定镜像下载地址代替默认镜像地址
+
+[root@master ~]# kubeadm init --kubernetes-version=1.23 --pod-network-cidr=10.244.0.0/16 --service-cidr=10.96.0.0/12 --ignore-preflight-errors=Swap  --image-repository=registry.aliyuncs.com/google_containers
+
+[preflight/images] Pulling images required for setting up a Kubernetes cluster ##表示开始拉取镜像
+[preflight/images] This might take a minute or two, depending on the speed of your internet connection
+[preflight/images] You can also perform this action in beforehand using &#39;kubeadm config images pull&#39; ##如果你感觉网速慢，可以运行kubeadm config images pull命令把镜像拖到本地
+[certificates] Generated apiserver-kubelet-client certificate and key. ##可以看到生成一堆证书
+[certificates] Generated sa key and public key.
+[certificates] Generated front-proxy-ca certificate and key.
+[certificates] Generated front-proxy-client certificate and key.
+[certificates] Generated etcd/ca certificate and key. 
+[controlplane] wrote Static Pod manifest for component kube-apiserver to &quot;/etc/kubernetes/manifests/kube-apiserver.yaml&quot;
+##yml控制给pod分多少cpu和内存
+[controlplane] wrote Static Pod manifest for component kube-controller-manager to &quot;/etc/kubernetes/manifests/kube-controller-manager.
+###markmaster帮我们把此节点标记为主节点
+[markmaster] Marking the node k8s-master as master by adding the label &quot;node-role.kubernetes.io/master=&#39;&#39;&quot;
+[markmaster] Marking the node k8s-master as master by adding the taints [node-role.kubernetes.io/master:NoSchedule]
+##bootstraptoken是引导令牌，让其他nodes加入集群时用的
+[bootstraptoken] using token: as5gwu.ktojf6cueg0doexi
+[bootstraptoken] configured RBAC rules to allow Node Bootstrap tokens to post CSRs in order for nodes to get long term certificate credentials
+##从k8s 1.11版开始，DNS正式被CoreDNS取代，它支持很多新的功能，比如资源的动态配置等
+[addons] Applied essential addon: CoreDNS
+##kube-proxy托管在K8S之上，负责生产service的iptables和ipvs规则，从k8s1.11开始默认支持ipvs
+[addons] Applied essential addon: kube-proxy
+##看到初始化成功了
+Your Kubernetes master has initialized successfully!
+To start using your cluster, you need to run the following as a regular user:
+##还需要手工运行一下命令
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+##其他机器装好包后，可以执行下面的命令来把nodes节点加入集群，把下面的命令记得自己保存起来，要不将来找不着就加不进去了
+##其实这么设计的目的就是不是谁都能加入集群的，需要拿着下面的令牌来加入
+You can now join any number of machines by running the following on each node
+as root:
+  kubeadm join 172.16.1.100:6443 --token as5gwu.ktojf6cueg0doexi --discovery-token-ca-cert-hash sha256:399a7de763b95e52084d7bd4cad71dc8fa1bf6dd453b02743d445eee59252cc5
+
+# 注意 最后输出显示的，这里要保留好，之后添加node的时候，用到的，否则添加不了node
+# 如果安装出错了，可以执行kubeadm reset命令进行重置，再重新执行kubeadm init...命令
+
+# 按照初始化最后的提示执行
+
+[root@master ~]# mkdir -p $HOME/.kube
+[root@master ~]# cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+</code></pre>
+<p>查看组件状态：</p>
+<pre><code># 不显示ApiServer状态是因为只要能查询组件，那apiserver肯定是健康的。
+[root@master ~]# kubectl get cs
+NAME                 STATUS    MESSAGE             ERROR
+scheduler            Healthy   ok                  
+controller-manager   Healthy   ok                  
+etcd-0               Healthy   &#123;&quot;health&quot;:&quot;true&quot;&#125; 
+
+# 查看node状态
+[root@master ~]# kubectl get nodes
+NAME                STATUS   ROLES    AGE   VERSION
+master.kubernetes   NoReady    master   66m   v1.15.0
+
+# 这里看到master的状态是NoReady，是因为没有安装flannel导致的（flannel并不属于k8s集群），下面安装
+</code></pre>
+<h4 id="安装flannel"><a href="#安装flannel" class="headerlink" title="安装flannel"></a>安装flannel</h4><p>下载地址：<a target="_blank" rel="noopener" href="https://github.com/flannel-io/flannel">https://github.com/flannel-io/flannel</a></p>
+<blockquote>
+<p>目前我的github打不开，因此我使用的是github的镜像地址<a target="_blank" rel="noopener" href="https://hub.nuaa.cf.本次使用master分支kube-flannel.yml文件有问题,查看了kubernetes.md之后发现我的版本需要使用kube-flannel-psp.yml./">https://hub.nuaa.cf。本次使用master分支kube-flannel.yml文件有问题，查看了kubernetes.md之后发现我的版本需要使用kube-flannel-psp.yml。</a></p>
+</blockquote>
+<p>安装flannel(master上执行):</p>
+<pre><code>[root@k8s-master chenzx]# kubectl apply -f https://hub.nuaa.cf/flannel-io/flannel/blob/master/Documentation/kube-flannel-psp.yml
+</code></pre>
+<p>查看当前master节点上kube-system名称空间里运行的所有pod状态：</p>
+<pre><code>[root@k8s-master chenzx]# kubectl  get pods -n kube-system  
+NAME                                 READY     STATUS              RESTARTS   AGE
+coredns-78fcdf6894-6j6nt             0/1       Running   0          2h
+coredns-78fcdf6894-pnmjj             0/1       Running   0          2h
+etcd-k8s-master                      1/1       Running             0          1h
+kube-apiserver-k8s-master            1/1       Running             0          1h
+kube-controller-manager-k8s-master   1/1       Running             0          1h
+kube-flannel-ds-amd64-txxw2          1/1       Running             0          1h
+kube-proxy-frkp9                     1/1       Running             0          2h
+kube-scheduler-k8s-master            1/1       Running             0          1h
+</code></pre>
+<p>另外，以上所有pod必须保证都是running状态的，如果哪个不是，可以通过类似如下命令查看为什么：</p>
+<pre><code>kubectl dscrible pods  coredns-78fcdf6894-6j6nt   -n kube-system
+</code></pre>
+<p>查看flannel镜像：</p>
+<pre><code>[root@k8s-master chenzx]# docker images quay.io/coreos/flannel
+REPOSITORY               TAG                 IMAGE ID            CREATED             SIZE
+quay.io/coreos/flannel   v0.10.0-amd64       f0fad859c909        7 months ago        44.6MB
+</code></pre>
+<p>查看flannel镜像：</p>
+<pre><code>[root@k8s-master chenzx]# docker images quay.io/coreos/flannel
+REPOSITORY               TAG                 IMAGE ID            CREATED             SIZE
+quay.io/coreos/flannel   v0.10.0-amd64       f0fad859c909        7 months ago        44.6MB
+</code></pre>
+<p>查看当前节点名称空间：</p>
+<pre><code>[root@k8s-master chenzx]# kubectl  get ns
+NAME          STATUS    AGE
+default       Active    3h
+kube-public   Active    3h
+kube-system   Active    3h
+</code></pre>
+<h4 id="加入集群"><a href="#加入集群" class="headerlink" title="加入集群"></a>加入集群</h4><p>在node上执行以下命令，该命令是从master节点init时输出的</p>
+<pre><code>[root@node01 ~]#kubeadm join 172.16.1.100:6443 --token as5gwu.ktojf6cueg0doexi --discovery-token-ca-cert-hash sha256:399a7de763b95e52084d7bd4cad71dc8fa1bf6dd453b02743d445eee59252cc5
+
+[preflight] Running pre-flight checks
+    [WARNING IsDockerSystemdCheck]: detected &quot;cgroupfs&quot; as the Docker cgroup driver. The recommended driver is &quot;systemd&quot;. Please follow the guide at https://kubernetes.io/docs/setup/cri/
+[preflight] Reading configuration from the cluster...
+[preflight] FYI: You can look at this config file with &#39;kubectl -n kube-system get cm kubeadm-config -oyaml&#39;
+[kubelet-start] Downloading configuration for the kubelet from the &quot;kubelet-config-1.15&quot; ConfigMap in the kube-system namespace
+[kubelet-start] Writing kubelet configuration to file &quot;/var/lib/kubelet/config.yaml&quot;
+[kubelet-start] Writing kubelet environment file with flags to file &quot;/var/lib/kubelet/kubeadm-flags.env&quot;
+[kubelet-start] Activating the kubelet service
+[kubelet-start] Waiting for the kubelet to perform the TLS Bootstrap...
+
+This node has joined the cluster:
+* Certificate signing request was sent to apiserver and a response was received.
+* The Kubelet was informed of the new secure connection details.
+
+Run &#39;kubectl get nodes&#39; on the control-plane to see this node join the cluster.
+</code></pre>
+<h4 id="问题汇总"><a href="#问题汇总" class="headerlink" title="问题汇总"></a>问题汇总</h4><p>本次安装过程中出现如下问题：</p>
+<p>Kubeadm初始化报错：[ERROR CRI]: container runtime is not running:  <a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_43580215/article/details/125153959">https://blog.csdn.net/qq_43580215&#x2F;article&#x2F;details&#x2F;125153959</a>  </p>
+<p>&#x2F;proc&#x2F;sys&#x2F;net&#x2F;bridge&#x2F;bridge-nf-call-iptables does not exist k8s:<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_34988341/article/details/109501589">https://blog.csdn.net/qq_34988341&#x2F;article&#x2F;details&#x2F;109501589</a>  </p>
+<p>k8s 使用 kubeadm init 初始化失败日志一直提示”Error getting node” err&#x3D;”node &quot;master&quot; not found”: <a target="_blank" rel="noopener" href="https://www.cnblogs.com/wxwbblog/p/16601054.html#:~:text=%22Error%20getting%20node%22%20err%3D%22node,%22master%22%20not%20found%22%E5%90%8E%E9%9D%A2%E6%97%A5%E5%BF%97%E4%B8%80%E7%9B%B4%E6%8F%90%E7%A4%BA%E8%BF%99%E4%B8%AA%EF%BC%8C%E4%B9%9F%E6%98%AF%E6%9B%B4%E5%85%B7%E8%BF%99%E4%B8%AA%E9%97%AE%E9%A2%98%E5%9C%A8%E4%B8%80%E4%B8%AA%E5%B8%96%E5%AD%90%E7%9A%84%E4%B8%80%E5%8F%A5%E6%8F%90%E7%A4%BA%E4%B8%AD%E6%89%BE%E5%88%B0%E4%BA%86%E7%AD%94%E6%A1%88%20%E9%97%AE%E9%A2%98%E5%8E%9F%E5%9B%A0%EF%BC%9Akubelet%E7%89%88%E6%9C%AC%E8%BF%87%E9%AB%98%EF%BC%8Cv1.24%E7%89%88%E6%9C%AC%E5%90%8Ekubernetes%E6%94%BE%E5%BC%83docker%E4%BA%86%20%E6%88%91%E7%9C%9F%E7%9A%84%E6%8E%8F%E4%BA%86%EF%BC%8C%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95%EF%BC%9A%E5%8D%B8%E6%8E%891.24%E7%89%88%E6%9C%AC%E7%9A%84%E7%BB%84%E4%BB%B6%EF%BC%8C%E4%BD%BF%E7%94%A8%E4%BD%8E%E7%89%88%E6%9C%AC%EF%BC%8C%E6%88%91%E8%BF%99%E9%87%8C%E4%B8%8B%E8%BD%BD%E7%9A%84v1.23.6">https://www.cnblogs.com/wxwbblog/p/16601054.html#:~:text&#x3D;%22Error%20getting%20node%22%20err%3D%22node,%22master%22%20not%20found%22%E5%90%8E%E9%9D%A2%E6%97%A5%E5%BF%97%E4%B8%80%E7%9B%B4%E6%8F%90%E7%A4%BA%E8%BF%99%E4%B8%AA%EF%BC%8C%E4%B9%9F%E6%98%AF%E6%9B%B4%E5%85%B7%E8%BF%99%E4%B8%AA%E9%97%AE%E9%A2%98%E5%9C%A8%E4%B8%80%E4%B8%AA%E5%B8%96%E5%AD%90%E7%9A%84%E4%B8%80%E5%8F%A5%E6%8F%90%E7%A4%BA%E4%B8%AD%E6%89%BE%E5%88%B0%E4%BA%86%E7%AD%94%E6%A1%88%20%E9%97%AE%E9%A2%98%E5%8E%9F%E5%9B%A0%EF%BC%9Akubelet%E7%89%88%E6%9C%AC%E8%BF%87%E9%AB%98%EF%BC%8Cv1.24%E7%89%88%E6%9C%AC%E5%90%8Ekubernetes%E6%94%BE%E5%BC%83docker%E4%BA%86%20%E6%88%91%E7%9C%9F%E7%9A%84%E6%8E%8F%E4%BA%86%EF%BC%8C%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95%EF%BC%9A%E5%8D%B8%E6%8E%891.24%E7%89%88%E6%9C%AC%E7%9A%84%E7%BB%84%E4%BB%B6%EF%BC%8C%E4%BD%BF%E7%94%A8%E4%BD%8E%E7%89%88%E6%9C%AC%EF%BC%8C%E6%88%91%E8%BF%99%E9%87%8C%E4%B8%8B%E8%BD%BD%E7%9A%84v1.23.6</a></p>
+<p>​k8s 1.24 1.25 集群使用docker作为容器:<a target="_blank" rel="noopener" href="https://blog.51cto.com/u_12212643/5823888">https://blog.51cto.com/u_12212643&#x2F;5823888</a></p>
+<p>故障error: failed to run Kubelet: failed to create kubelet: misconfiguration: kubelet cgroup driver: <a target="_blank" rel="noopener" href="https://blog.csdn.net/sinat_28371057/article/details/109895176">https://blog.csdn.net/sinat_28371057&#x2F;article&#x2F;details&#x2F;109895176</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_41298721/article/details/114916421">https://blog.csdn.net/weixin_41298721&#x2F;article&#x2F;details&#x2F;114916421</a></p>
+<p>kubernetes 坑人的错误！！！Unable to connect to the server: x509: certificate signed by unknown authority:<a target="_blank" rel="noopener" href="https://blog.csdn.net/woay2008/article/details/93250137">https://blog.csdn.net/woay2008/article/details/93250137</a></p>
+<div class="note green icon-padding flat">
+<p>**参考内容**：</p> 
+<p>https://www.cnblogs.com/peng-zone/p/11558544.html</p> 
+<p>详解 K8S 高可用部署，超详细！:https://zhuanlan.zhihu.com/p/558014199</p>
+<p>相关部署中的其他相关细节（参考，包括flannel.yml文件获取）:https://www.cnblogs.com/klb561/p/11871514.html</p>
+<p>参考flannel网络插件以及相关配置: https://blog.csdn.net/sinat_28521487/article/details/126057006</p>
+<p>高可用kubernetes部署教程（keepalive+haproxy）：https://www.cnblogs.com/superlinux/p/14676959.html</p>
+</div>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://example.com">QiYan</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2022/12/23/k8s/">http://example.com/2022/12/23/k8s/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com" target="_blank">知与行</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/k8s/">k8s</a></div><div class="post_share"><div class="social-share" data-image="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2022/12/15/Docker3/"><img class="next-cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">docker数据卷和网络</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/avatar.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">QiYan</div><div class="author-info__description">学而不思则惘 思而不学则殆</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">20</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">21</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">6</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content"></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Devops"><span class="toc-number">1.</span> <span class="toc-text">Devops</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A6%82%E8%BF%B0"><span class="toc-number">1.1.</span> <span class="toc-text">概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Devops-1"><span class="toc-number">1.2.</span> <span class="toc-text">Devops</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#CI"><span class="toc-number">1.2.1.</span> <span class="toc-text">CI</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#CD"><span class="toc-number">1.2.2.</span> <span class="toc-text">CD</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#CD-1"><span class="toc-number">1.2.3.</span> <span class="toc-text">CD</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%91%E5%B8%83%E6%96%B9%E5%BC%8F"><span class="toc-number">1.3.</span> <span class="toc-text">发布方式</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%93%9D%E7%BB%BF%E5%8F%91%E5%B8%83"><span class="toc-number">1.3.1.</span> <span class="toc-text">蓝绿发布</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%81%B0%E5%BA%A6%E5%8F%91%E5%B8%83"><span class="toc-number">1.3.2.</span> <span class="toc-text">灰度发布</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BB%9A%E5%8A%A8%E5%8F%91%E5%B8%83"><span class="toc-number">1.3.3.</span> <span class="toc-text">滚动发布</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#K8S%E6%A6%82%E8%BF%B0"><span class="toc-number">2.</span> <span class="toc-text">K8S概述</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#K8S%E5%9F%BA%E7%A1%80"><span class="toc-number">2.1.</span> <span class="toc-text">K8S基础</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#K8S%E7%89%B9%E6%80%A7"><span class="toc-number">2.2.</span> <span class="toc-text">K8S特性</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#k8s%E7%89%B9%E6%80%A7"><span class="toc-number">2.2.1.</span> <span class="toc-text">k8s特性</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#k8s%E9%85%8D%E7%BD%AE%E7%AE%A1%E7%90%86"><span class="toc-number">2.2.2.</span> <span class="toc-text">k8s配置管理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#k8s%E9%9B%86%E7%BE%A4%E6%A8%A1%E5%9E%8B"><span class="toc-number">2.2.3.</span> <span class="toc-text">k8s集群模型</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#K8S%E9%9B%86%E7%BE%A4"><span class="toc-number">2.3.</span> <span class="toc-text">K8S集群</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#master"><span class="toc-number">2.3.1.</span> <span class="toc-text">master</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#nodes"><span class="toc-number">2.3.2.</span> <span class="toc-text">nodes</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#pod"><span class="toc-number">2.3.3.</span> <span class="toc-text">pod</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Kubernetes%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5"><span class="toc-number">3.</span> <span class="toc-text">Kubernetes基础概念</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Pod%E5%88%86%E7%B1%BB"><span class="toc-number">3.1.</span> <span class="toc-text">Pod分类</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%87%AA%E6%88%91%E7%AE%A1%E7%90%86%E5%BC%8FPod%EF%BC%9A"><span class="toc-number">3.1.1.</span> <span class="toc-text">自我管理式Pod：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%8E%A7%E5%88%B6%E5%99%A8%E7%AE%A1%E7%90%86%E7%9A%84pod%EF%BC%9A"><span class="toc-number">3.1.2.</span> <span class="toc-text">控制器管理的pod：</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0"><span class="toc-number">3.2.</span> <span class="toc-text">服务发现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%99%84%E4%BB%B6"><span class="toc-number">3.3.</span> <span class="toc-text">附件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9E%8B"><span class="toc-number">3.4.</span> <span class="toc-text">网络模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#k8s%E8%AF%81%E4%B9%A6"><span class="toc-number">3.5.</span> <span class="toc-text">k8s证书</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#kubeadm%E5%88%9D%E5%A7%8B%E5%8C%96k8s%E9%9B%86%E7%BE%A4"><span class="toc-number">3.6.</span> <span class="toc-text">kubeadm初始化k8s集群</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A6%82%E8%BF%B0-1"><span class="toc-number">3.6.1.</span> <span class="toc-text">概述</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%87%86%E5%A4%87"><span class="toc-number">3.6.2.</span> <span class="toc-text">准备</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%89%E8%A3%85%E8%BD%AF%E4%BB%B6"><span class="toc-number">3.6.3.</span> <span class="toc-text">安装软件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="toc-number">3.6.4.</span> <span class="toc-text">初始化</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%89%E8%A3%85flannel"><span class="toc-number">3.6.5.</span> <span class="toc-text">安装flannel</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8A%A0%E5%85%A5%E9%9B%86%E7%BE%A4"><span class="toc-number">3.6.6.</span> <span class="toc-text">加入集群</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E6%B1%87%E6%80%BB"><span class="toc-number">3.6.7.</span> <span class="toc-text">问题汇总</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/12/23/k8s/" title="Devops核心要点和k8s架构概述">Devops核心要点和k8s架构概述</a><time datetime="2022-12-23T08:39:13.331Z" title="发表于 2022-12-23 16:39:13">2022-12-23</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/12/15/Docker3/" title="docker数据卷和网络">docker数据卷和网络</a><time datetime="2022-12-15T12:16:17.374Z" title="发表于 2022-12-15 20:16:17">2022-12-15</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/12/15/Docker1/" title="docker镜像和容器管理">docker镜像和容器管理</a><time datetime="2022-12-15T11:58:22.832Z" title="发表于 2022-12-15 19:58:22">2022-12-15</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/12/15/Docker2/" title="docker镜像制作">docker镜像制作</a><time datetime="2022-12-15T11:56:40.452Z" title="发表于 2022-12-15 19:56:40">2022-12-15</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/12/12/Docker/" title="docker基础">docker基础</a><time datetime="2022-12-12T14:37:54.050Z" title="发表于 2022-12-12 22:37:54">2022-12-12</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By QiYan</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
